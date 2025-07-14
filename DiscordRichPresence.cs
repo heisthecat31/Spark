@@ -14,7 +14,7 @@ namespace Spark
 {
 	internal static class DiscordRichPresence
 	{
-		private static DiscordRpcClient discordClient;
+		internal static DiscordRpcClient discordClient;
 
 		// Generic timer variable to be used as Elapsed time on state that don't have an end time
 		private static DateTime initialStateTime;
