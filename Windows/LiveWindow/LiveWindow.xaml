@@ -3,7 +3,7 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		  xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf"
+		xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf"
 		xmlns:l="clr-namespace:Spark"
 		xmlns:p="clr-namespace:Spark.Properties"
 		xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
@@ -258,8 +258,13 @@
 				<RowDefinition Height="1*"/>
 				<RowDefinition Height="56"/>
 			</Grid.RowDefinitions>
-			<TabControl x:Name="tabControl" SelectedIndex="0" Margin="0,4,0,0">
-				<TabItem x:Name="DashboardTab" FontSize="14" Padding="10,0,10,0" Margin="4,-2,-2,0">
+			<TabControl x:Name="tabControl"
+						SelectedIndex="0"
+						Margin="0,4,0,0">
+				<TabItem x:Name="DashboardTab"
+						 FontSize="14"
+						 Padding="10,0,10,0"
+						 Margin="4,-2,-2,0">
 					<TabItem.Header>
 						<StackPanel Orientation="Horizontal">
 							<Label Content="{x:Static p:Resources.Dashboard}"/>
@@ -533,7 +538,6 @@
 
 						</StackPanel>
 
-
 						<GroupBox Margin="10,10,10,10"
 								  Grid.Row="1">
 							<GroupBox.Header>
@@ -585,7 +589,6 @@
 													<ColumnDefinition Width="5*"/>
 													<ColumnDefinition Width="100"/>
 												</Grid.ColumnDefinitions>
-
 
 												<StackPanel>
 													<Image Source="https://vrmasterleague.com/images/logos/teams/09093858-5626-404d-97a3-10b8353fcc47.png"
@@ -742,7 +745,6 @@
 								   HorizontalContentAlignment="Center"
 								   Grid.Column="7"/>
 
-
 						</Grid>
 						<Grid x:Name="blueScoreboardGrid"
 							  Grid.Row="1">
@@ -790,7 +792,6 @@
 							<Label Content="Avg. Spd."
 								   HorizontalContentAlignment="Center"
 								   Grid.Column="7"/>
-
 
 						</Grid>
 
@@ -1253,30 +1254,26 @@
 				   Padding="5,3,5,5"
 				   Foreground="{DynamicResource ControlDisabledGlythColour}"/>
 
-        <tb:TaskbarIcon
-            x:Name="tb"
-            VerticalAlignment="Top"
-            ToolTipText="{x:Static p:Resources.AppName}"
-			IconSource="/img/ignite_logo.ico"
-			TrayPopup="{StaticResource TrayStatusPopup}"
-			TrayToolTip="{StaticResource TrayToolTip}"
-            MenuActivation="LeftOrRightClick"
-            PopupActivation="DoubleClick">
+		<tb:TaskbarIcon x:Name="trayIcon"
+						IconSource="/img/ignite_logo.ico"
+						ToolTipText="{x:Static p:Resources.AppName}"
+						PopupActivation="DoubleClick"
+						Grid.Column="12"
+						Grid.Row="1">
+			<!-- Set a simple context menu  -->
 			<tb:TaskbarIcon.ContextMenu>
-				<tb:TaskbarIconMenu>
-					<tb:TaskbarIconMenuItem
-						x:Name="showHideMenuItem"
-						Header="{x:Static p:Resources.Hide_Main_Window}"
-						Padding="5,5,5,5"
-						Margin="1,1,1,1"
-						Command="{Binding ToggleHiddenCommand}"/>
-					<tb:TaskbarIconMenuSeparator/>
-					<tb:TaskbarIconMenuItem
-						Header="{x:Static p:Resources.Exit}"
-						Padding="5,5,5,5"
-						Margin="1,1,1,1"
-						Command="{Binding QuitCommand}"/>
-				</tb:TaskbarIconMenu>
+				<ContextMenu>
+					<MenuItem x:Name="showHideMenuItem"
+							  Header="{x:Static p:Resources.Hide_Main_Window}"
+							  Padding="5,5,5,5"
+							  Margin="1,1,1,1"
+							  Click="ToggleHidden"/>
+					<Separator></Separator>
+					<MenuItem Header="{x:Static p:Resources.Exit}"
+							  Padding="5,5,5,5"
+							  Margin="1,1,1,1"
+							  Click="QuitButtonClicked"/>
+				</ContextMenu>
 			</tb:TaskbarIcon.ContextMenu>
 		</tb:TaskbarIcon>
 	</Grid>
