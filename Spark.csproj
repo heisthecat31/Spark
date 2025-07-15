@@ -187,7 +187,6 @@
   <ItemGroup>
     <PackageReference Include="DiscordRichPresence" />
     <PackageReference Include="Fleck" />
-    <PackageReference Include="Hardcodet.NotifyIcon.Wpf.NetCore" />
     <PackageReference Include="HidSharpCore" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" />
