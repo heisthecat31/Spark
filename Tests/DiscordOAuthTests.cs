@@ -59,9 +59,9 @@ namespace Spark
 
             // Assert
             Thread.Sleep(100); // give it a moment to process
-            Assert.AreEqual(expectedToken, DiscordOAuth.oauthToken);
-            Assert.AreEqual(expectedUsername, DiscordOAuth.DiscordUsername);
-            Assert.AreEqual(expectedUserId, DiscordOAuth.DiscordUserID);
+            Assert.Equals(expectedToken, DiscordOAuth.oauthToken);
+            Assert.Equals(expectedUsername, DiscordOAuth.DiscordUsername);
+            Assert.Equals(expectedUserId, DiscordOAuth.DiscordUserID);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace Spark
 
             // Assert
             Thread.Sleep(100); // give it a moment to process
-            Assert.IsEmpty(DiscordOAuth.oauthToken);
+            Assert.Equals(DiscordOAuth.oauthToken, "");
         }
     }
 }

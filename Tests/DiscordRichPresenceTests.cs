@@ -1,6 +1,7 @@
 using DiscordRPC;
 using Moq;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Spark
 {
@@ -41,11 +42,11 @@ namespace Spark
             {
                 map_name = "mpl_arena_a",
                 private_match = false,
-                teams = new[]
+                teams = new List<EchoVRAPI.Team>
                 {
-                    new EchoVRAPI.Team { team = "BLUE", players = new EchoVRAPI.Player[1] },
-                    new EchoVRAPI.Team { team = "ORANGE", players = new EchoVRAPI.Player[1] },
-                    new EchoVRAPI.Team { team = "SPECTATOR", players = new EchoVRAPI.Player[0] },
+                    new EchoVRAPI.Team { team = "BLUE", players = new List<EchoVRAPI.Player> { null } },
+                    new EchoVRAPI.Team { team = "ORANGE", players = new List<EchoVRAPI.Player> { null } },
+                    new EchoVRAPI.Team { team = "SPECTATOR", players = new List<EchoVRAPI.Player>() },
                 },
                 blue_points = 1,
                 orange_points = 2,
@@ -53,7 +54,6 @@ namespace Spark
                 client_name = "test_player",
             };
             frame.teams[0].players[0] = new EchoVRAPI.Player { name = "test_player" };
-
 
             // Act
             DiscordRichPresence.ProcessDiscordPresence(frame);

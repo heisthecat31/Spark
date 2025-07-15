@@ -195,7 +195,7 @@ namespace Spark
 			}
 		}
 
-		private static void ProcessDiscordPresence(Frame frame)
+		public static void ProcessDiscordPresence(Frame frame)
 		{
 			// Check if the rich presence setting is enabled in Spark
 			if (SparkSettings.instance.discordRichPresence)
