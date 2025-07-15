@@ -185,24 +185,27 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DiscordRichPresence" />
-    <PackageReference Include="Fleck" />
-    <PackageReference Include="HidSharpCore" />
-    <PackageReference Include="Microsoft.Data.Sqlite" />
-    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" />
-    <PackageReference Include="Microsoft.Web.WebView2" />
-    <PackageReference Include="Microsoft.Win32.SystemEvents" />
-    <PackageReference Include="NAudio" />
-    <PackageReference Include="NetMQ" />
-    <PackageReference Include="Newtonsoft.Json" />
-    <PackageReference Include="obs-websocket-dotnet" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" />
-    <PackageReference Include="System.Management" />
-    <PackageReference Include="Vosk" />
-    <PackageReference Include="WindowsAPICodePack-Shell" />
-    <PackageReference Include="ZstdNet" />
-    <PackageReference Include="EchoVRAPI" />
-    <PackageReference Include="ButterReplays" />
+    	<PackageReference Include="ButterReplays" />
+		<PackageReference Include="DiscordRichPresence" />
+		<PackageReference Include="EchoVRAPI" />
+		<PackageReference Include="Fleck" />
+		<PackageReference Include="H.NotifyIcon.Wpf" />
+		<PackageReference Include="HidSharpCore" />
+		<PackageReference Include="Microsoft.Data.Sqlite" />
+		<PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" />
+		<PackageReference Include="Microsoft.Web.WebView2" />
+		<PackageReference Include="Microsoft.Win32.SystemEvents" />
+		<PackageReference Include="Moq" />
+		<PackageReference Include="NAudio" />
+		<PackageReference Include="NetMQ" />
+		<PackageReference Include="Newtonsoft.Json" />
+		<PackageReference Include="NUnit" />
+		<PackageReference Include="obs-websocket-dotnet" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" />
+		<PackageReference Include="System.Management" />
+		<PackageReference Include="Vosk" />
+		<PackageReference Include="WindowsAPICodePack-Shell" />
+		<PackageReference Include="ZstdNet" />
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
