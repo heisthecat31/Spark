@@ -3,7 +3,7 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:tb="http://www.hardcodet.net/taskbar"
+		xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf"
 		xmlns:l="clr-namespace:Spark"
 		xmlns:p="clr-namespace:Spark.Properties"
 		xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
@@ -245,7 +245,7 @@
 
 									<!-- <StackPanel> -->
 										<Label Content="{x:Static p:Resources.Link_Type_}" Margin="10,0,10,0"/>
-										<ComboBox x:Name="linkTypeComboBox" Width="120" HorizontalAlignment="Left" Margin="10,0,10,0" SelectedIndex="{Binding LinkType}">
+										<ComboBox x:Name="linkTypeComboBox" Width="120" HorizontalAlignment="Left" Margin="10,0,10,0" SelectedIndex="{Binding Path=LinkType}">
 											<ComboBoxItem Content="{x:Static p:Resources.Choose}" ToolTip="{x:Static p:Resources.The_Choose_type_shows_a_popup_when_you_click_the_link_to_either_join_as_a_player_or_spectator_}"/>
 											<ComboBoxItem Content="{x:Static p:Resources.Player}" ToolTip="{x:Static p:Resources.Join_directly_as_a_player_}"/>
 											<ComboBoxItem Content="{x:Static p:Resources.join_as_spectator}" ToolTip="{x:Static p:Resources.Join_directly_as_a_spectator_}"/>
@@ -297,8 +297,8 @@
 
 											<GroupBox.Header>
 												<StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,10,0">
-													<TextBlock Text="{x:Static p:Resources.Public}" Margin="0,0,10,0" Foreground="{DynamicResource ControlDisabledGlythColour}"></TextBlock>
-													<Button Content="{x:Static p:Resources.Copy_Atlas_Link}" Margin="200,0,10,0" Background="{DynamicResource ControlDisabledBackground}"/>
+													<TextBlock Text="{x:Static p:Resources.Public}" Margin="0,0,10,0"></TextBlock>
+													<Button Content="{x:Static p:Resources.Copy_Atlas_Link}" Margin="200,0,10,0" Style="{DynamicResource ButtonStyle}"/>
 													<Button Content="{x:Static p:Resources.Join}" Margin="10,0,10,0"/>
 												</StackPanel>
 											</GroupBox.Header>
@@ -621,20 +621,33 @@
 		<TextBlock x:Name="DownloadingOverlaysText" Text="Downloading Overlays..." Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="150,0,0,3" Grid.Column="2" FontSize="12" Padding="5,3,5,5" Foreground="{DynamicResource ControlDisabledGlythColour}"/>
 
 
-
-		<tb:TaskbarIcon x:Name="trayIcon"
+		<tb:TaskbarIcon
+			ToolTipText="{x:Static p:Resources.AppName}"
 			IconSource="/img/ignite_logo.ico"
-			ToolTipText="{x:Static p:Resources.AppName}" PopupActivation="DoubleClick" Grid.Column="12" Grid.Row="1">
-
-			<!-- Set a simple context menu  -->
+			ContextMenu="{StaticResource TrayMenu}"
+			MenuActivation="LeftOrRightClick"
+			TrayPopup="{StaticResource TrayStatusPopup}"
+			PopupActivation="DoubleClick"
+			TrayToolTip="{StaticResource TrayToolTip}"
+			>
 			<tb:TaskbarIcon.ContextMenu>
-				<ContextMenu>
-					<MenuItem x:Name="showHideMenuItem" Header="{x:Static p:Resources.Hide_Main_Window}" Padding="5,5,5,5" Margin="1,1,1,1" Click="ToggleHidden" />
-					<Separator></Separator>
-					<MenuItem Header="{x:Static p:Resources.Exit}" Padding="5,5,5,5" Margin="1,1,1,1" Click="QuitButtonClicked" />
-				</ContextMenu>
+				<tb:TaskbarIconMenu>
+					<tb:TaskbarIconMenuItem
+						x:Name="showHideMenuItem"
+						Header="{x:Static p:Resources.Hide_Main_Window}"
+						Padding="5,5,5,5"
+						Margin="1,1,1,1"
+						Command="{Binding ToggleHiddenCommand}"
+						/>
+					<tb:TaskbarIconMenuSeparator />
+					<tb:TaskbarIconMenuItem
+						Header="{x:Static p:Resources.Exit}"
+						Padding="5,5,5,5"
+						Margin="1,1,1,1"
+						Command="{Binding QuitCommand}"
+						/>
+				</tb:TaskbarIconMenu>
 			</tb:TaskbarIcon.ContextMenu>
-
 		</tb:TaskbarIcon>
 	</Grid>
 </Window>
