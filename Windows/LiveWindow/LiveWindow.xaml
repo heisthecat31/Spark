@@ -624,7 +624,10 @@
 
 		<tb:TaskbarIcon x:Name="trayIcon"
 			IconSource="/img/ignite_logo.ico"
-			ToolTipText="{x:Static p:Resources.AppName}" PopupActivation="DoubleClick" Grid.Column="12" Grid.Row="1">
+			ToolTipText="{x:Static p:Resources.AppName}"
+			TrayMouseDoubleClick="TrayIcon_OnTrayMouseDoubleClick"
+			TrayLeftMouseDown="TrayIcon_OnTrayLeftMouseDown"
+			Grid.Column="12" Grid.Row="1">
 
 			<!-- Set a simple context menu  -->
 			<tb:TaskbarIcon.ContextMenu>

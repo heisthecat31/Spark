@@ -951,14 +951,39 @@ namespace Spark
 
 		protected override void OnClosing(CancelEventArgs e)
 		{
-			base.OnClosing(e);
-
-			// if not specifically a exit button press, hide
-			if (isExplicitClose == false)
+			if (SparkSettings.instance.minimizeToTray)
 			{
 				e.Cancel = true;
-				Program.ToggleWindow(typeof(YouSureAboutClosing), null, this);
+				Hide();
+				hidden = true;
+				showHideMenuItem.Header = Properties.Resources.Show_Main_Window;
 			}
+			else
+			{
+				base.OnClosing(e);
+
+				// if not specifically a exit button press, hide
+				if (isExplicitClose == false)
+				{
+					e.Cancel = true;
+					Program.ToggleWindow(typeof(YouSureAboutClosing), null, this);
+				}
+			}
+		}
+
+		private void TrayIcon_OnTrayLeftMouseDown(object sender, RoutedEventArgs e)
+		{
+			if (hidden)
+			{
+				Show();
+				hidden = false;
+				showHideMenuItem.Header = Properties.Resources.Hide_Main_Window;
+			}
+		}
+
+		private void TrayIcon_OnTrayMouseDoubleClick(object sender, RoutedEventArgs e)
+		{
+			ToggleHidden(null, null);
 		}
 
 		private void ClickedOnPlayer(string playerName)
@@ -1134,9 +1159,17 @@ namespace Spark
 
 		private void CloseButtonClicked(object sender, RoutedEventArgs e)
 		{
-			Hide();
-			showHideMenuItem.Header = Properties.Resources.Show_Main_Window;
-			hidden = true;
+			if (SparkSettings.instance.closeToTray)
+			{
+				Hide();
+				showHideMenuItem.Header = Properties.Resources.Show_Main_Window;
+				hidden = true;
+			}
+			else
+			{
+				isExplicitClose = true;
+				Program.Quit();
+			}
 		}
 
 		private void SettingsButtonClicked(object sender, RoutedEventArgs e)
