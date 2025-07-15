@@ -3,7 +3,7 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf"
+		  xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf"
 		xmlns:l="clr-namespace:Spark"
 		xmlns:p="clr-namespace:Spark.Properties"
 		xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
@@ -1253,15 +1253,15 @@
 				   Padding="5,3,5,5"
 				   Foreground="{DynamicResource ControlDisabledGlythColour}"/>
 
-
-		<tb:TaskbarIcon
-			ToolTipText="{x:Static p:Resources.AppName}"
+        <tb:TaskbarIcon
+            x:Name="tb"
+            VerticalAlignment="Top"
+            ToolTipText="{x:Static p:Resources.AppName}"
 			IconSource="/img/ignite_logo.ico"
-			ContextMenu="{StaticResource TrayMenu}"
-			MenuActivation="LeftOrRightClick"
 			TrayPopup="{StaticResource TrayStatusPopup}"
-			PopupActivation="DoubleClick"
-			TrayToolTip="{StaticResource TrayToolTip}">
+			TrayToolTip="{StaticResource TrayToolTip}"
+            MenuActivation="LeftOrRightClick"
+            PopupActivation="DoubleClick">
 			<tb:TaskbarIcon.ContextMenu>
 				<tb:TaskbarIconMenu>
 					<tb:TaskbarIconMenuItem
