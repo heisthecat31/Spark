@@ -1,0 +1,27 @@
+{
+  // --------------------------------------------------------------------
+  // Settings for XAML Files
+  // --------------------------------------------------------------------
+  "[xaml]": {
+    // Indentation and Tabs
+    // Corresponds to: TabSize=4, IndentSize=4, InsertTabs=false, IndentStyle=Smart
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.autoIndent": "full",
+
+    // Editor Features
+    // Corresponds to: BraceCompletion=false, ShowNavigationBar=true
+    "editor.autoClosingTags": false,
+    "breadcrumbs.enabled": true,
+
+    // UI and Display
+    // Corresponds to: ShowLineNumbers=true, WordWrap=false, UseMapMode=false
+    "editor.lineNumbers": "on",
+    "editor.wordWrap": "off",
+    "editor.minimap.enabled": false,
+
+    // Clipboard Behavior
+    // Corresponds to: CutCopyBlankLines=true
+    "editor.emptySelectionClipboard": true
+  }
+}
