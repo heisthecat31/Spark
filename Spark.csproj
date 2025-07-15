@@ -1,191 +1,191 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows10.0.17763</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
-    <StartupObject>Spark.App</StartupObject>
-    <ApplicationIcon>img\ignite_logo.ico</ApplicationIcon>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <Version>2.6.16</Version>
-    <PackageProjectUrl>https://www.ignitevr.gg/spark</PackageProjectUrl>
-    <Company>IgniteVR</Company>
-    <Authors>NtsFranz, VTSxKING, iblowatsports</Authors>
-    <Platforms>AnyCPU;x64</Platforms>
-    <Description>A tool to record and process EchoVR API data.</Description>
-    <Copyright>IgniteVR 2022</Copyright>
-    <PackageId>Spark</PackageId>
-    <AssemblyName>Spark</AssemblyName>
-    <RootNamespace>Spark</RootNamespace>
-    <LangVersion>9</LangVersion>
-    <PackageVersion>2.6.16</PackageVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;WINDOWS_STORE_RELEASE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <DefineConstants>TRACE;WINDOWS_STORE_RELEASE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>TRACE;WINDOWS_STORE_RELEASE</DefineConstants>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <DefineConstants>TRACE;WINDOWS_STORE_RELEASE</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="wwwtemplates\default_scoreboard.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <Page Update="Windows\QuestIPs.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Update="Properties\LoadingTips.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>LoadingTips.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Update="Windows\QuestIPs.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>QuestIPs.xaml</DependentUpon>
-    </Compile>
-    <Page Update="Windows\LiveWindow\CameraWrite.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Update="Windows\LiveWindow\CameraWrite.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>CameraWrite.xaml</DependentUpon>
-    </Compile>
-    <Page Update="Windows\Settings\ClipsSettings.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Update="Windows\Settings\ClipsSettings.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>ClipsSettings.xaml</DependentUpon>
-    </Compile>
-    <Page Update="Windows\LiveWindow\EchoGP.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Update="Windows\LiveWindow\EchoGP.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>EchoGP.xaml</DependentUpon>
-    </Compile>
-    <Page Update="Windows\LiveWindow\LiveWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Update="Windows\LiveWindow\LiveWindow.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Page Update="Windows\Settings\OverlaysConfigWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Update="Windows\Settings\OverlaysConfigWindow.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Page Update="Windows\LiveWindow\ServerInfo.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Update="Windows\LiveWindow\ServerInfo.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>ServerInfo.xaml</DependentUpon>
-    </Compile>
-    <Page Update="Windows\Settings\UnifiedSettingsWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Update="Windows\Settings\UnifiedSettingsWindow.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Page Update="Windows\LiveWindow\PrivateMatchRulesWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Update="Windows\LiveWindow\PrivateMatchRulesWindow.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>PrivateMatchSettings.xaml</DependentUpon>
-    </Compile>
-    <Resource Include="img\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <EmbeddedResource Update="Properties\Resources.es.resx">
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <SubType>Designer</SubType>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Properties\Icons.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Icons.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <Compile Update="Properties\Icons.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Icons.resx</DependentUpon>
-    </Compile>
-    <EmbeddedResource Update="Properties\LoadingTips.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>LoadingTips.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="resources\asciiecho.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="resources\MicrosoftEdgeWebview2Setup.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="resources\obs_scene_collection.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <Page Update="Windows\QProJoiner.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Update="Windows\QProJoiner.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>QProJoiner.xaml</DependentUpon>
-    </Compile>
-    <Page Update="Windows\LiveWindow\CreateServerControls.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Update="Windows\LiveWindow\CreateServerControls.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>CreateServerControls.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="SecretKeys.cs.bak" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="EchoVRDefaultSettings\loading_tips.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="GfeSDK.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HighlightsPlugin64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="InstallEchoSpeakerSystem.bat">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Overlay\build\**\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    	<PackageReference Include="ButterReplays" />
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net9.0-windows10.0.17763</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+		<StartupObject>Spark.App</StartupObject>
+		<ApplicationIcon>img\ignite_logo.ico</ApplicationIcon>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<Version>2.6.16</Version>
+		<PackageProjectUrl>https://www.ignitevr.gg/spark</PackageProjectUrl>
+		<Company>IgniteVR</Company>
+		<Authors>NtsFranz, VTSxKING, iblowatsports</Authors>
+		<Platforms>AnyCPU;x64</Platforms>
+		<Description>A tool to record and process EchoVR API data.</Description>
+		<Copyright>IgniteVR 2022</Copyright>
+		<PackageId>Spark</PackageId>
+		<AssemblyName>Spark</AssemblyName>
+		<RootNamespace>Spark</RootNamespace>
+		<LangVersion>9</LangVersion>
+		<PackageVersion>2.6.16</PackageVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DefineConstants>TRACE;WINDOWS_STORE_RELEASE</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<DefineConstants>TRACE;WINDOWS_STORE_RELEASE</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DefineConstants>TRACE;WINDOWS_STORE_RELEASE</DefineConstants>
+		<PlatformTarget>AnyCPU</PlatformTarget>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<DefineConstants>TRACE;WINDOWS_STORE_RELEASE</DefineConstants>
+	</PropertyGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="wwwtemplates\default_scoreboard.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<Page Update="Windows\QuestIPs.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Properties\LoadingTips.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>LoadingTips.resx</DependentUpon>
+		</Compile>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+		<Compile Update="Properties\Settings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+		</Compile>
+		<Compile Update="Windows\QuestIPs.xaml.cs">
+			<SubType>Code</SubType>
+			<DependentUpon>QuestIPs.xaml</DependentUpon>
+		</Compile>
+		<Page Update="Windows\LiveWindow\CameraWrite.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Windows\LiveWindow\CameraWrite.xaml.cs">
+			<SubType>Code</SubType>
+			<DependentUpon>CameraWrite.xaml</DependentUpon>
+		</Compile>
+		<Page Update="Windows\Settings\ClipsSettings.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Windows\Settings\ClipsSettings.xaml.cs">
+			<SubType>Code</SubType>
+			<DependentUpon>ClipsSettings.xaml</DependentUpon>
+		</Compile>
+		<Page Update="Windows\LiveWindow\EchoGP.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Windows\LiveWindow\EchoGP.xaml.cs">
+			<SubType>Code</SubType>
+			<DependentUpon>EchoGP.xaml</DependentUpon>
+		</Compile>
+		<Page Update="Windows\LiveWindow\LiveWindow.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Windows\LiveWindow\LiveWindow.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Page Update="Windows\Settings\OverlaysConfigWindow.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Windows\Settings\OverlaysConfigWindow.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Page Update="Windows\LiveWindow\ServerInfo.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Windows\LiveWindow\ServerInfo.xaml.cs">
+			<SubType>Code</SubType>
+			<DependentUpon>ServerInfo.xaml</DependentUpon>
+		</Compile>
+		<Page Update="Windows\Settings\UnifiedSettingsWindow.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Windows\Settings\UnifiedSettingsWindow.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Page Update="Windows\LiveWindow\PrivateMatchRulesWindow.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Windows\LiveWindow\PrivateMatchRulesWindow.xaml.cs">
+			<SubType>Code</SubType>
+			<DependentUpon>PrivateMatchSettings.xaml</DependentUpon>
+		</Compile>
+		<Resource Include="img\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Resource>
+		<EmbeddedResource Update="Properties\Resources.es.resx">
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+			<Generator>PublicResXFileCodeGenerator</Generator>
+			<SubType>Designer</SubType>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Properties\Icons.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Icons.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Icons.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Icons.resx</DependentUpon>
+		</Compile>
+		<EmbeddedResource Update="Properties\LoadingTips.resx">
+			<Generator>PublicResXFileCodeGenerator</Generator>
+			<LastGenOutput>LoadingTips.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<EmbeddedResource Include="resources\asciiecho.exe">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="resources\MicrosoftEdgeWebview2Setup.exe">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="resources\obs_scene_collection.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<Page Update="Windows\QProJoiner.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<XamlRuntime>Wpf</XamlRuntime>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Windows\QProJoiner.xaml.cs">
+			<SubType>Code</SubType>
+			<DependentUpon>QProJoiner.xaml</DependentUpon>
+		</Compile>
+		<Page Update="Windows\LiveWindow\CreateServerControls.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<XamlRuntime>Wpf</XamlRuntime>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Windows\LiveWindow\CreateServerControls.xaml.cs">
+			<SubType>Code</SubType>
+			<DependentUpon>CreateServerControls.xaml</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<None Remove="SecretKeys.cs.bak" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="EchoVRDefaultSettings\loading_tips.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="GfeSDK.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="HighlightsPlugin64.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="InstallEchoSpeakerSystem.bat">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="Overlay\build\**\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="ButterReplays" />
 		<PackageReference Include="DiscordRichPresence" />
 		<PackageReference Include="EchoVRAPI" />
 		<PackageReference Include="Fleck" />
@@ -206,86 +206,86 @@
 		<PackageReference Include="Vosk" />
 		<PackageReference Include="WindowsAPICodePack-Shell" />
 		<PackageReference Include="ZstdNet" />
-  </ItemGroup>
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="EchoVRDefaultSettings\mp_spectator_settings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="EchoVRDefaultSettings\settings_mp_v2.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Windows\CreateServer.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Windows\YouSureAboutClosing.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Windows\FirstTimeSetupWindow.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Windows\UpdateWindow.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>UpdateWindow.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.ja.resx">
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Properties\LoadingTips.es.resx">
-      <LastGenOutput>LoadingTips.Designer.cs</LastGenOutput>
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <SubType>Designer</SubType>
-      <DependentUpon>LoadingTips.resx</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Properties\LoadingTips.ja.resx">
-      <LastGenOutput>LoadingTips.Designer.cs</LastGenOutput>
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <SubType>Designer</SubType>
-      <DependentUpon>LoadingTips.resx</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Update="wwwtemplates\vrml\minimap.html">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="Themes\ColourfulDarkTheme_Orange.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-    </Page>
-    <Page Update="Windows\CreateServer.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Windows\YouSureAboutClosing.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Windows\FirstTimeSetupWindow.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Windows\UpdateWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="SettingsBindings" />
-  </ItemGroup>
+	</ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="EchoVRDefaultSettings\mp_spectator_settings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="EchoVRDefaultSettings\settings_mp_v2.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="Windows\CreateServer.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="Windows\YouSureAboutClosing.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="Windows\FirstTimeSetupWindow.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="Windows\UpdateWindow.xaml.cs">
+			<SubType>Code</SubType>
+			<DependentUpon>UpdateWindow.xaml</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Update="Properties\Resources.ja.resx">
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+			<Generator>PublicResXFileCodeGenerator</Generator>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>PublicResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Properties\LoadingTips.es.resx">
+			<LastGenOutput>LoadingTips.Designer.cs</LastGenOutput>
+			<Generator>PublicResXFileCodeGenerator</Generator>
+			<SubType>Designer</SubType>
+			<DependentUpon>LoadingTips.resx</DependentUpon>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Properties\LoadingTips.ja.resx">
+			<LastGenOutput>LoadingTips.Designer.cs</LastGenOutput>
+			<Generator>PublicResXFileCodeGenerator</Generator>
+			<SubType>Designer</SubType>
+			<DependentUpon>LoadingTips.resx</DependentUpon>
+		</EmbeddedResource>
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="Properties\Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+		<None Update="wwwtemplates\vrml\minimap.html">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="Themes\ColourfulDarkTheme_Orange.xaml">
+			<XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+		</Page>
+		<Page Update="Windows\CreateServer.xaml">
+			<XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="Windows\YouSureAboutClosing.xaml">
+			<XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="Windows\FirstTimeSetupWindow.xaml">
+			<XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="Windows\UpdateWindow.xaml">
+			<SubType>Designer</SubType>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="SettingsBindings" />
+	</ItemGroup>
 </Project>
