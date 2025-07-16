@@ -123,8 +123,8 @@ namespace Spark
 		private static readonly List<float> statsDeltaTimes = new List<float> { 33.3333333f, 66.6666666f };
 
 
-		public static LiveWindow liveWindow;
-		private static ClosingDialog closingWindow;
+		public static Windows.LiveWindow.LiveWindow liveWindow;
+		private static Windows.ClosingDialog closingWindow;
 
 		private static readonly Dictionary<string, Window> popupWindows = new Dictionary<string, Window>();
 
@@ -138,13 +138,13 @@ namespace Spark
 
 
 		public static string hostedAtlasSessionId;
-		public static LiveWindow.AtlasWhitelist atlasWhitelist = new LiveWindow.AtlasWhitelist();
+		public static Windows.AtlasWhitelistWindow atlasWhitelist = new Windows.AtlasWhitelistWindow();
 
 		public static TTSController synth;
 		public static ReplayClips replayClips;
 		public static ReplayFilesManager replayFilesManager;
 		public static CameraWriteController cameraWriteController;
-		public static CameraWrite cameraWriteWindow;
+		public static Windows.LiveWindow.CameraWrite cameraWriteWindow;
 		public static EchoGPController echoGPController;
 		public static WebSocketServerManager webSocketMan;
 		public static SpeechRecognition speechRecognizer;
@@ -165,7 +165,7 @@ namespace Spark
 		private static readonly HttpClient fetchClient = new HttpClient();
 		// private static readonly System.Timers.Timer fetchTimer = new System.Timers.Timer();
 		private static readonly Stopwatch fetchSw = new Stopwatch();
-		private static Timer ccuCounter;
+		private static System.Threading.Timer ccuCounter;
 		public static CameraController cameraController;
 
 		public static CoreWebView2Environment webView2Environment;
@@ -399,7 +399,7 @@ namespace Spark
 
 					return;
 
-					// MessageBox box = new MessageBox(Resources.instance_already_running_message, Resources.Error);
+					// MessageBox box = new Windows.MessageBox(Resources.instance_already_running_message, Resources.Error);
 					// box.Show();
 					// //while(box!= null)
 					// {
@@ -453,14 +453,14 @@ namespace Spark
 					Debug.WriteLine(Directory.Exists(path));
 				});
 
-				liveWindow = new LiveWindow();
+				liveWindow = new Windows.LiveWindow.LiveWindow();
 				liveWindow.Closed += (_, _) => liveWindow = null;
 				liveWindow.Show();
 
 
 				if (!SparkSettings.instance.firstTimeSetupShown)
 				{
-					ToggleWindow(typeof(FirstTimeSetupWindow));
+					ToggleWindow(typeof(Windows.FirstTimeSetupWindow));
 					SparkSettings.instance.firstTimeSetupShown = true;
 				}
 
@@ -636,7 +636,7 @@ namespace Spark
 
 				//HighlightsHelper.CloseNVHighlights();
 
-				ccuCounter = new Timer(CCUCounter, null, 0, 60000);
+				ccuCounter = new System.Threading.Timer(CCUCounter, null, 0, 60000);
 				
 
 				#region Add Listeners
@@ -662,7 +662,7 @@ namespace Spark
 
 		public static Version AppVersion()
 		{
-			return Application.Current.GetType().Assembly.GetName().Version;
+			return System.Windows.Application.Current.GetType().Assembly.GetName().Version;
 		}
 
 		public static string AppVersionString()
@@ -1179,7 +1179,7 @@ namespace Spark
 		{
 			if (joinType == JoinType.Choose)
 			{
-				new MessageBox("Can't launch with join type Choose", Resources.Error, quitIfError ? Quit: () => { }).Show();
+				new Windows.MessageBox("Can't launch with join type Choose", Resources.Error, quitIfError ? Quit: () => { }).Show();
 				return false;
 			}
 			string echoPath = SparkSettings.instance.echoVRPath;
@@ -1201,7 +1201,7 @@ namespace Spark
 			}
 			else
 			{
-				new MessageBox(Resources.echovr_path_not_set, Resources.Error, quitIfError ? Quit: () => { }).Show();
+				new Windows.MessageBox(Resources.echovr_path_not_set, Resources.Error, quitIfError ? Quit: () => { }).Show();
 				return false;
 			}
 
@@ -1374,7 +1374,7 @@ namespace Spark
 			}
 			catch (Exception)
 			{
-				new MessageBox($"Error accessing replay folder path:\n{SparkSettings.instance.saveFolder}").Show();
+				new Windows.MessageBox($"Error accessing replay folder path:\n{SparkSettings.instance.saveFolder}").Show();
 				LogRow(LogType.Error, $"Error accessing replay folder path:\n{SparkSettings.instance.saveFolder}");
 			}
 		}
@@ -1917,8 +1917,8 @@ namespace Spark
 									new Vector3(boostSpeed, 0, 0)
 								);
 								CurrentRound.events.Enqueue(bigBoostEvent);
-								
-								
+
+
 								try
 								{
 									BigBoost?.Invoke(frame, team, player, boostSpeed, howLongAgoBoost);
@@ -1981,7 +1981,7 @@ namespace Spark
 								)
 							{
 								// playspace abuse happened
-							
+
 
 								EventData eventData = new EventData(
 									CurrentRound,
@@ -1992,7 +1992,7 @@ namespace Spark
 									null,
 									player.head.Position,
 									player.head.Position - playerData.playspaceLocation);
-								
+
 								CurrentRound.events.Enqueue(eventData);
 								try
 								{
@@ -2003,7 +2003,7 @@ namespace Spark
 								{
 									LogRow(LogType.Error, "Error processing action", exp.ToString());
 								}
-								
+
 								playerData.PlayspaceAbuses++;
 
 								// reset the playspace so we don't get extra events
@@ -2212,7 +2212,7 @@ namespace Spark
 							Team throwTeam = null;
 							Player throwPlayer = null;
 							bool wasTurnoverCatch = false;
-							
+
 							try
 							{
 								Catch?.Invoke(frame, team, player);
@@ -2250,9 +2250,9 @@ namespace Spark
 								if (wasTurnoverCatch && lastPlayer.stats.saves == player.stats.saves)
 								{
 									_ = DelayedCatchEvent(frame, team, player, throwPlayer);
-									
+
 									EventData turnoverEvent = new EventData(CurrentRound, EventContainer.EventType.turnover, frame.game_clock, team, throwPlayer, player, throwPlayer.head.Position, player.head.Position);
-									
+
 									try
 									{
 										Turnover?.Invoke(frame, team, throwPlayer, player);
@@ -2262,7 +2262,7 @@ namespace Spark
 									{
 										LogRow(LogType.Error, "Error processing action", exp.ToString());
 									}
-									
+
 									// TODO enable once the db can handle it
 									CurrentRound.events.Enqueue(turnoverEvent);
 									CurrentRound.GetPlayerData(throwPlayer).Turnovers++;
@@ -2295,8 +2295,8 @@ namespace Spark
 							EventData eventData = new EventData(CurrentRound, EventContainer.EventType.shot_taken,
 								frame.game_clock, team, player, null, player.head.Position, Vector3.Zero);
 							CurrentRound.events.Enqueue(eventData);
-							
-							
+
+
 							try
 							{
 								ShotTaken?.Invoke(frame, team, player);
@@ -2306,7 +2306,7 @@ namespace Spark
 							{
 								LogRow(LogType.Error, "Error processing action", exp.ToString());
 							}
-							
+
 							if (lastThrowPlayerId == player.playerid)
 							{
 								lastThrowPlayerId = -1;
@@ -2328,28 +2328,28 @@ namespace Spark
 							}
 
 						}
-						
+
 
 						// check disk was thrown ⚾
 						if (!wasThrown && player.possession &&
-						    (
-							    // local throw
-							    (
-								    frame.client_name == player.name &&
-								    frame.last_throw != null &&
-								    frame.last_throw.total_speed != 0 &&
-								    Math.Abs(frame.last_throw.total_speed - lastFrame.last_throw.total_speed) > .001f
-							    )
-							    ||
-							    // any other player throw
-							    (
-								    // last and current frame disc vel is nonzero
-								    !lastFrame.disc.velocity.ToVector3().Equals(Vector3.Zero) &&
-								    !frame.disc.velocity.ToVector3().Equals(Vector3.Zero) &&
-								    // disc relative velocity is > 3
-								    (frame.disc.velocity.ToVector3() - player.velocity.ToVector3()).Length() > 3
-							    )
-						    ))
+							(
+								// local throw
+								(
+									frame.client_name == player.name &&
+									frame.last_throw != null &&
+									frame.last_throw.total_speed != 0 &&
+									Math.Abs(frame.last_throw.total_speed - lastFrame.last_throw.total_speed) > .001f
+								)
+								||
+								// any other player throw
+								(
+									// last and current frame disc vel is nonzero
+									!lastFrame.disc.velocity.ToVector3().Equals(Vector3.Zero) &&
+									!frame.disc.velocity.ToVector3().Equals(Vector3.Zero) &&
+									// disc relative velocity is > 3
+									(frame.disc.velocity.ToVector3() - player.velocity.ToVector3()).Length() > 3
+								)
+							))
 						{
 							wasThrown = true;
 							lastThrowPlayerId = player.playerid;
@@ -2380,14 +2380,17 @@ namespace Spark
 								frame.disc.velocity.ToVector3().Length());
 						}
 
+						#pragma warning disable CS0162 // Unreachable code detected
 						// TODO check if a pass was made
 						if (false)
 						{
 							CurrentRound.events.Enqueue(new EventData(CurrentRound, EventContainer.EventType.pass, frame.game_clock,
 								team, player, null, player.head.Position, Vector3.Zero));
+
 							LogRow(LogType.File, frame.sessionid,
 								frame.game_clock_display + " - " + player.name + " made a pass");
 						}
+						#pragma warning restore CS0162 // Unreachable code detected
 					}
 				}
 
@@ -3096,7 +3099,7 @@ namespace Spark
 			if (parts.Length != 4)
 			{
 				LogRow(LogType.Error, "ERROR 3452. Incorrectly formatted Spark or Atlas link");
-				new MessageBox(
+				new Windows.MessageBox(
 					$"{Resources.Incorrectly_formatted_Spark_or_Atlas_link_}\n{Resources.wrong_number_of_____characters_for_link_}\n{args[0]}\n{parts.Length}",
 					Resources.Error, Quit).Show();
 			}
@@ -3118,11 +3121,11 @@ namespace Spark
 				case "choose":
 				case "c":
 					// hand the whole thing off to the popup window
-					new ChooseJoinTypeDialog(parts[3]).Show();
+					new Spark.Windows.ChooseJoinTypeDialog(parts[3]).ShowDialog();
 					return true;
 				default:
 					LogRow(LogType.Error, "ERROR 8675. Incorrectly formatted Spark or Atlas link");
-					new MessageBox($"{Resources.Incorrectly_formatted_Spark_or_Atlas_link_}\n{Resources.Incorrect_join_type_}", Resources.Error, Quit)
+					new Windows.MessageBox($"{Resources.Incorrectly_formatted_Spark_or_Atlas_link_}\n{Resources.Incorrect_join_type_}", Resources.Error, Quit)
 						.Show();
 					return true;
 			}
@@ -3139,9 +3142,9 @@ namespace Spark
 						await APIJoin(parts[3], joinType == JoinType.Spectator ? 2 : -1);
 					}
 				}
-				catch (Exception e)
+				catch
 				{
-					new MessageBox(Resources.Failed_to_send_join_data_to_the_game__Maybe_you_left_the_game_, Resources.Error, Quit).Show();
+					new Windows.MessageBox(Resources.Failed_to_send_join_data_to_the_game__Maybe_you_left_the_game_, Resources.Error, Quit).Show();
 				}
 			});
 			
@@ -3160,19 +3163,19 @@ namespace Spark
 			string[] ret = new string[2];
 			try
 			{
-				HttpWebRequest req = (HttpWebRequest)WebRequest.Create(@"https://api.github.com/repos/iblowatsports/Echo-VR-Speaker-System/releases/latest");
-				req.Accept = "application/json";
-				req.UserAgent = "Spark";
+				using (HttpClient client = new HttpClient())
+				{
+					client.DefaultRequestHeaders.Accept.Clear();
+					client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+					client.DefaultRequestHeaders.UserAgent.ParseAdd("Spark");
 
-				WebResponse resp = req.GetResponse();
-				Stream ds = resp.GetResponseStream();
-				StreamReader sr = new StreamReader(ds);
-
-				// Session Contents
-				string textResp = sr.ReadToEnd();
-				VersionJson versionJson = JsonConvert.DeserializeObject<VersionJson>(textResp);
-				ret[0] = versionJson.assets.First(url => url.browser_download_url.EndsWith("exe")).browser_download_url;
-				ret[1] = versionJson.tag_name;
+					var response = client.GetAsync("https://api.github.com/repos/iblowatsports/Echo-VR-Speaker-System/releases/latest").Result;
+					response.EnsureSuccessStatusCode();
+					string textResp = response.Content.ReadAsStringAsync().Result;
+					VersionJson versionJson = JsonConvert.DeserializeObject<VersionJson>(textResp);
+					ret[0] = versionJson.assets.First(url => url.browser_download_url.EndsWith("exe")).browser_download_url;
+					ret[1] = versionJson.tag_name;
+				}
 			}
 			catch (Exception e)
 			{
@@ -3386,10 +3389,17 @@ namespace Spark
 				IntPtr unityHandle = liveWindow.GetUnityHandler();
 				string[] SpeakerSystemURLVer = GetLatestSpeakerSystemURLVer();
 				string updateFileName = "EchoSpeakerSystemInstall_" + SpeakerSystemURLVer[1] + ".exe";
-				WebClient webClient = new WebClient();
-				//webClient.DownloadFileCompleted += Completed;
-				//webClient.DownloadProgressChanged += ProgressChanged;
-				webClient.DownloadFile(new Uri(SpeakerSystemURLVer[0]), Path.GetTempPath() + updateFileName);
+				using (HttpClient httpClient = new HttpClient())
+				{
+					using (var response = httpClient.GetAsync(SpeakerSystemURLVer[0]).Result)
+					{
+						response.EnsureSuccessStatusCode();
+						using (var fs = new FileStream(Path.GetTempPath() + updateFileName, FileMode.Create, FileAccess.Write, FileShare.None))
+						{
+							response.Content.CopyToAsync(fs).Wait();
+						}
+					}
+				}
 				Process process = Process.Start(new ProcessStartInfo
 				{
 					FileName = Path.Combine(Path.GetTempPath(), updateFileName),
@@ -3478,20 +3488,24 @@ namespace Spark
 
 						if (!inPCSpectator)
 						{
-							new MessageBox("You have chosen to automatically set the camera to follow the player, but you don't have EchoVR running in spectator mode on this pc.").Show();
+							new Windows.MessageBox(
+								"You have chosen to automatically set the camera to follow the player, but you don't have EchoVR running in spectator mode on this pc.",
+								Resources.Error,
+								null
+							).Show();
 							return;
 						}
 
 						Frame frame = JsonConvert.DeserializeObject<Frame>(result);
 						if (frame == null)
 						{
-							new MessageBox("Failed to process frame from the local PC").Show();
+							new Windows.MessageBox("Failed to process frame from the local PC").Show();
 							return;
 						}
 
 						if (frame.sessionid != lastFrame.sessionid || lastFrame.GetPlayer(frame.client_name) == null)
 						{
-							new MessageBox("Local PC is not in the same match as your Quest. Can't follow player.").Show();
+							new Windows.MessageBox("Local PC is not in the same match as your Quest. Can't follow player.").Show();
 							return;
 						}
 
@@ -3521,7 +3535,7 @@ namespace Spark
 			{
 				windowName ??= type.ToString();
 
-				if (!popupWindows.ContainsKey(windowName) || popupWindows[windowName] == null)
+				if (!popupWindows.TryGetValue(windowName, out Window value) || value == null)
 				{
 					popupWindows[windowName] = (Window)Activator.CreateInstance(type);
 					popupWindows[windowName].Owner = ownedBy;
@@ -3531,14 +3545,14 @@ namespace Spark
 				}
 				else
 				{
-					popupWindows[windowName].Close();
+                    value.Close();
 					return false;
 				}
 			}
 			catch (Exception e)
 			{
 				LogRow(LogType.Error, e.ToString());
-				new MessageBox($"Failed to open window: {type}.\nPlease report this to NtsFranz.").Show();
+				new Windows.MessageBox($"Failed to open window: {type}.\nPlease report this to NtsFranz.").Show();
 				return false;
 			}
 		}
@@ -3546,7 +3560,7 @@ namespace Spark
 		public static Window GetWindowIfOpen(Type type, string windowName = null)
 		{
 			windowName ??= type.ToString();
-			return popupWindows.ContainsKey(windowName) ? popupWindows[windowName] : null;
+			return popupWindows.TryGetValue(windowName, out Window value) ? value : null;
 		}
 
 		public static void AutoUploadTabletStats()
@@ -3559,8 +3573,8 @@ namespace Spark
 				List<TabletStats> stats = FindTabletStats();
 				stats.ForEach(s =>
 				{
-					if (SparkSettings.instance.autoUploadProfiles.ContainsKey(s.player_name) &&
-					    SparkSettings.instance.autoUploadProfiles[s.player_name])
+					if (SparkSettings.instance.autoUploadProfiles.TryGetValue(s.player_name, out bool value) &&
+value)
 					{
 						UploadTabletStats(s);
 					}
@@ -3602,7 +3616,7 @@ namespace Spark
 			catch (Exception ex)
 			{
 				LogRow(LogType.Error, ex.ToString());
-				new MessageBox($"Failed to find tablet stats.\nPlease report this to NtsFranz.").Show();
+				new Windows.MessageBox($"Failed to find tablet stats.\nPlease report this to NtsFranz.").Show();
 				return new List<TabletStats>();
 			}
 		}
@@ -3635,7 +3649,7 @@ namespace Spark
 			catch (Exception ex)
 			{
 				LogRow(LogType.Error, ex.ToString());
-				new MessageBox($"Failed to upload tablet stats.\nPlease report this to NtsFranz.").Show();
+				new Windows.MessageBox($"Failed to upload tablet stats.\nPlease report this to NtsFranz.").Show();
 				finishedCallback?.Invoke(false);
 			}
 		}
@@ -3813,7 +3827,7 @@ namespace Spark
 
 				liveWindow.Dispatcher.Invoke(() =>
 				{
-					closingWindow = new ClosingDialog();
+					closingWindow = new Windows.ClosingDialog();
 					closingWindow.Show();
 				});
 			}

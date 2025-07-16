@@ -143,8 +143,8 @@ namespace Spark
 
 		public void SaveAnimation(string animName)
 		{
-			if (!animations.ContainsKey(animName)) return;
-			if (animations[animName] == null) return;
+			if (!animations.TryGetValue(animName, out AnimationKeyframes value)) return;
+			if (value == null) return;
 
 			try
 			{
@@ -162,7 +162,7 @@ namespace Spark
 							Directory.CreateDirectory(animationsFolder);
 						}
 
-						string animJson = JsonConvert.SerializeObject(animations[animName], Formatting.Indented);
+						string animJson = JsonConvert.SerializeObject(value, Formatting.Indented);
 						File.WriteAllText(Path.Combine(animationsFolder, animName + ".json"), animJson);
 					}
 					catch (Exception e)

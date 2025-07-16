@@ -32,7 +32,7 @@ namespace Spark
 									if (data != null)
 									{
 										// if there are at least 2 players from that team
-										if (data.ContainsKey("count") && int.Parse(data["count"]) >= 2)
+										if (data.TryGetValue("count", out string value) && int.Parse(value) >= 2)
 										{
 											vrmlTeamName = data["team_name"];
 											vrmlTeamLogo = data["team_logo"];

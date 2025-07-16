@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace Spark
+namespace Spark.Windows
 {
 	/// <summary>
 	/// Interaction logic for MessageBox.xaml

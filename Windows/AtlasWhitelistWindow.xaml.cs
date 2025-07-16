@@ -8,7 +8,7 @@ using Button = System.Windows.Controls.Button;
 using Label = System.Windows.Controls.Label;
 using Orientation = System.Windows.Controls.Orientation;
 
-namespace Spark
+namespace Spark.Windows
 {
 	/// <summary>
 	/// Interaction logic for AtlasWhitelistWindow.xaml

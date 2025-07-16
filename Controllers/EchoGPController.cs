@@ -219,7 +219,7 @@ namespace Spark
 			}
 
 			// if we don't have a checkpoints list for this map
-			if (!checkpoints.ContainsKey(f.map_name))
+			if (!checkpoints.TryGetValue(f.map_name, out List<TriggerSphere> checkpointsList))
 			{
 				state = State.NotReady;
 				return;
@@ -263,10 +263,9 @@ namespace Spark
 				}
 				case State.Racing:
 				{
-					List<TriggerSphere> checkpointsList = checkpoints[f.map_name];
 
-					// if in the starting area
-					if (InTrigger(f, checkpoints[f.map_name][0]))
+                        // if in the starting area
+                        if (InTrigger(f, checkpoints[f.map_name][0]))
 					{
 						state = State.InStartingArea;
 						Program.synth.SpeakAsync("Cancelled Race. Ready in starting area.");

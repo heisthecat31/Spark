@@ -32,7 +32,7 @@ namespace Spark
 				context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
 				if (int.TryParse(context.Request.RouteValues["index"]?.ToString(), out int index))
 				{
-					CameraWrite.TryGoToWaypoint(index);
+					Windows.LiveWindow.CameraWrite.TryGoToWaypoint(index);
 					await context.Response.WriteAsync($"Going to waypoint {index}");
 				}
 				else
@@ -236,7 +236,7 @@ namespace Spark
 					}
 
 					// update the UI to match
-					Window window = Program.GetWindowIfOpen(typeof(UnifiedSettingsWindow));
+					Window window = Program.GetWindowIfOpen(typeof(Windows.Settings.UnifiedSettingsWindow));
 					//((UnifiedSettingsWindow)window)?.OverlaysConfigWindow.SetUIToSettings();
 
 					await context.Response.WriteAsync("Set team team_logo");
@@ -262,10 +262,9 @@ namespace Spark
 						return;
 					}
 
-					if (data.ContainsKey("team_logo"))
+					if (data.TryGetValue("team_logo", out string teamLogo))
 					{
-						string teamLogo = data["team_logo"];
-						if (Enum.TryParse(context.Request.RouteValues["team_color"]?.ToString(), out Team.TeamColor teamColor) &&
+                        if (Enum.TryParse(context.Request.RouteValues["team_color"]?.ToString(), out Team.TeamColor teamColor) &&
 						    !string.IsNullOrEmpty(teamLogo))
 						{
 							switch (teamColor)
@@ -285,10 +284,9 @@ namespace Spark
 						}
 					}
 
-					if (data.ContainsKey("team_name"))
+					if (data.TryGetValue("team_name", out string teamName))
 					{
-						string teamName = data["team_name"];
-						if (Enum.TryParse(context.Request.RouteValues["team_color"]?.ToString(), out Team.TeamColor teamColor) &&
+                        if (Enum.TryParse(context.Request.RouteValues["team_color"]?.ToString(), out Team.TeamColor teamColor) &&
 						    !string.IsNullOrEmpty(teamName))
 						{
 							switch (teamColor)
@@ -344,11 +342,11 @@ namespace Spark
 						{
 							if (value is JObject j)
 							{
-								if (!setting.ContainsKey(key))
+								if (!setting.TryGetValue(key, out object existingValue))
 								{
 									setting[key] = new Dictionary<string, object>();
 								}
-								else if (setting[key] is not Dictionary<string, object>)
+								else if (existingValue is not Dictionary<string, object>)
 								{
 									setting[key] = new Dictionary<string, object>();
 								}
@@ -412,26 +410,26 @@ namespace Spark
 						return;
 					}
 
-					if (data.ContainsKey("round_scores_orange"))
+					if (data.TryGetValue("round_scores_orange", out object value))
 					{
-						List<int> ret = JsonConvert.DeserializeObject<List<int?>>(data["round_scores_orange"].ToString() ?? string.Empty)?.Where(x => x != null).Cast<int>().ToList();
+						List<int> ret = JsonConvert.DeserializeObject<List<int?>>(value.ToString() ?? string.Empty)?.Where(x => x != null).Cast<int>().ToList();
 						SparkSettings.instance.overlaysManualRoundScoresOrange = ret?.ToArray() ?? Array.Empty<int>();
 					}
 
-					if (data.ContainsKey("round_scores_blue"))
+					if (data.TryGetValue("round_scores_blue", out object valueBlue))
 					{
-						List<int> ret = JsonConvert.DeserializeObject<List<int?>>(data["round_scores_blue"].ToString() ?? string.Empty)?.Where(x => x != null).Cast<int>().ToList();
+						List<int> ret = JsonConvert.DeserializeObject<List<int?>>(valueBlue.ToString() ?? string.Empty)?.Where(x => x != null).Cast<int>().ToList();
 						SparkSettings.instance.overlaysManualRoundScoresBlue = ret?.ToArray() ?? Array.Empty<int>();
 					}
 
-					if (data.ContainsKey("round_count"))
+					if (data.TryGetValue("round_count", out object valueRoundCount))
 					{
-						SparkSettings.instance.overlaysManualRoundCount = (int)(long)data["round_count"];
+						SparkSettings.instance.overlaysManualRoundCount = (int)(long)valueRoundCount;
 					}
 
-					if (data.ContainsKey("round_scores_manual"))
+					if (data.TryGetValue("round_scores_manual", out object valueRoundScoresManual))
 					{
-						SparkSettings.instance.overlaysRoundScoresManual = (bool)data["round_scores_manual"];
+						SparkSettings.instance.overlaysRoundScoresManual = (bool)valueRoundScoresManual;
 					}
 
 					Program.OverlayConfigChanged?.Invoke();
@@ -484,13 +482,14 @@ namespace Spark
 					string request = context.Request.GetEncodedUrl();
 					request = request[(request.IndexOf("vrml_api", StringComparison.Ordinal) + "vrml_api".Length)..];
 					if (request == null) return;
-					if (!vrmlAPICache.ContainsKey(request) || DateTime.UtcNow - vrmlAPICache[request].Item1 >= TimeSpan.FromMinutes(30))
+					if (!vrmlAPICache.TryGetValue(request, out (DateTime, string) value) || DateTime.UtcNow - value.Item1 >= TimeSpan.FromMinutes(30))
 					{
 						string ret = await vrmlAPIClient.GetStringAsync(request);
-						vrmlAPICache[request] = (DateTime.UtcNow, ret);
+                        value = (DateTime.UtcNow, ret);
+                        vrmlAPICache[request] = value;
 					}
 
-					string val = vrmlAPICache[request].Item2;
+					string val = value.Item2;
 					if (val.StartsWith("{") || val.StartsWith("["))
 					{
 						context.Response.Headers.Add("Content-Type", "application/json");
@@ -643,7 +642,7 @@ namespace Spark
 			{
 				try
 				{
-					QuestIPs window = (QuestIPs)Program.GetWindowIfOpen(typeof(QuestIPs));
+					Windows.QuestIPs window = (Windows.QuestIPs)Program.GetWindowIfOpen(typeof(Windows.QuestIPs));
 					if (window != null)
 					{
 						await context.Response.WriteAsJsonAsync(window.data.Select(a => new Dictionary<string, object>()

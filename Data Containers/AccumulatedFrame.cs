@@ -141,9 +141,10 @@ namespace Spark
 			{
 				foreach (Player player in team.players)
 				{
-					if (!players.ContainsKey(player.userid))
+					if (!players.TryGetValue(player.userid, out MatchPlayer value))
 					{
-						players.Add(player.userid, new MatchPlayer(this, player));
+                        value = new MatchPlayer(this, player);
+                        players.Add(player.userid, value);
 					}
 
 					if (player.stats == null)
@@ -152,16 +153,16 @@ namespace Spark
 						return;
 					}
 
-					players[player.userid].Accumulate(newFrame, player, lastFrame);
+                    value.Accumulate(newFrame, player, lastFrame);
 				}
 			}
 		}
 
 		public MatchPlayer GetPlayerData(long userid)
 		{
-			if (players.ContainsKey(userid))
+			if (players.TryGetValue(userid, out MatchPlayer value))
 			{
-				return players[userid];
+				return value;
 			}
 
 			// Logger.LogRow(Logger.LogType.Error, $"Player not found: {userid}"); // TODO this happens a lot

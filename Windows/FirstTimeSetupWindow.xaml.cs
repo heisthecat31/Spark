@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Spark
+namespace Spark.Windows
 {
 	/// <summary>
 	/// Interaction logic for FirstTimeSetupWindow.xaml

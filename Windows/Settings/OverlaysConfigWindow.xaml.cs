@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Spark
+namespace Spark.Windows.Settings
 {
 	/// <summary>
 	/// Interaction logic for OverlaysConfigWindow.xaml

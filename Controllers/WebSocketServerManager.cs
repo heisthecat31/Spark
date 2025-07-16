@@ -55,14 +55,15 @@ namespace Spark
 							{
 								if (Enum.TryParse(parts[1], out EventContainer.EventType type))
 								{
-									if (!subscriberMapping.ContainsKey(type))
+									if (!subscriberMapping.TryGetValue(type, out List<IWebSocketConnection> value))
 									{
-										subscriberMapping[type] = new List<IWebSocketConnection>();
+                                            value = new List<IWebSocketConnection>();
+                                            subscriberMapping[type] = value;
 									}
 
 									lock (subscriberLock)
 									{
-										subscriberMapping[type].Add(socket);
+                                            value.Add(socket);
 									}
 
 									socket.Send(message);
@@ -83,11 +84,11 @@ namespace Spark
 							{
 								if (Enum.TryParse(parts[1], out EventContainer.EventType type))
 								{
-									if (subscriberMapping.ContainsKey(type))
+									if (subscriberMapping.TryGetValue(type, out List<IWebSocketConnection> value))
 									{
 										lock (subscriberLock)
 										{
-											subscriberMapping[type].Remove(socket);
+                                                value.Remove(socket);
 										}
 									}
 

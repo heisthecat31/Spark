@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Spark
+namespace Spark.Windows
 {
 	/// <summary>
 	/// Interaction logic for ChooseJoinTypeDialog.xaml

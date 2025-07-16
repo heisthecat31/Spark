@@ -8,7 +8,7 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Media;
 
-namespace Spark
+namespace Spark.Windows
 {
 	/// <summary>
 	/// Interaction logic for LoneEchoSubtitles.xaml

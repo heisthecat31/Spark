@@ -23,7 +23,7 @@ using Frame = EchoVRAPI.Frame;
 using Quaternion = System.Numerics.Quaternion;
 using Timer = System.Timers.Timer;
 
-namespace Spark
+namespace Spark.Windows.LiveWindow
 {
 	public partial class CameraWrite : UserControl
 	{
@@ -335,9 +335,9 @@ namespace Spark
 
 			// set the current animation in memory
 			//if the key exists normally
-			if (CameraWriteSettings.animations.ContainsKey(CameraWriteSettings.instance.activeAnimation))
+			if (CameraWriteSettings.animations.TryGetValue(CameraWriteSettings.instance.activeAnimation, out AnimationKeyframes value))
 			{
-				CurrentAnimation = CameraWriteSettings.animations[CameraWriteSettings.instance.activeAnimation];
+				CurrentAnimation = value;
 			}
 			// if there are still other animations to choose from
 			else if (CameraWriteSettings.animations.Count > 0)
@@ -430,9 +430,9 @@ namespace Spark
 		public bool TryGoToWaypoint(string name)
 		{
 			CameraTransform[] waypoints = CameraWriteSettings.instance.waypoints.Values.ToArray();
-			if (CameraWriteSettings.instance.waypoints.ContainsKey(name))
+			if (CameraWriteSettings.instance.waypoints.TryGetValue(name, out CameraTransform value))
 			{
-				SetCamera(CameraWriteSettings.instance.waypoints[name]);
+				SetCamera(value);
 				return true;
 			}
 			else
@@ -1095,13 +1095,13 @@ namespace Spark
 					((ComboBoxItem)AnimationsComboBox.SelectedItem).Content.ToString();
 				AnimationNameTextBox.Text = CameraWriteSettings.instance.activeAnimation;
 
-				if (!CameraWriteSettings.animations.ContainsKey(CameraWriteSettings.instance.activeAnimation))
+				if (!CameraWriteSettings.animations.TryGetValue(CameraWriteSettings.instance.activeAnimation, out AnimationKeyframes value))
 				{
 					new MessageBox("Error 4853: Report this to NtsFranz immediately, or else. >:|").Show();
 					return;
 				}
 
-				CurrentAnimation = CameraWriteSettings.animations[CameraWriteSettings.instance.activeAnimation];
+				CurrentAnimation = value;
 				RegenerateKeyframeButtons();
 			}
 		}

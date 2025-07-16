@@ -8,12 +8,12 @@ using System.Windows.Media;
 using Newtonsoft.Json;
 using Spark.Properties;
 
-namespace Spark
+namespace Spark.Windows
 {
 	/// <summary>
 	/// Interaction logic for ChooseJoinTypeDialog.xaml
 	/// </summary>
-	public partial class ChooseJoinTypeDialog
+	public partial class ChooseJoinTypeDialog : Window
 	{
 		private readonly string sessionId;
 		private bool? sessionDataFound;

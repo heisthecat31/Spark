@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace Spark
+namespace Spark.Windows
 {
 	public partial class YouSureAboutClosing : Window
 	{

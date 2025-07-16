@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace Spark.Windows
+namespace Spark.Windows.Windows
 {
 	/// <summary>
 	/// Interaction logic for PingGraphWebView.xaml

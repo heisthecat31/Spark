@@ -16,9 +16,9 @@ using OBSWebsocketDotNet.Communication;
 using OBSWebsocketDotNet.Types;
 using OBSWebsocketDotNet.Types.Events;
 
-namespace Spark
+namespace Spark.Windows.Settings
 {
-	public partial class ClipsSettings
+	public partial class ClipsSettings : UserControl
 	{
 		// set to false initially so that loading the settings from disk doesn't activate the events
 		private bool initialized;

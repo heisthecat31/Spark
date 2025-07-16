@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using EchoVRAPI;
 using Newtonsoft.Json;
 
-namespace Spark
+namespace Spark.Windows.LiveWindow
 {
 	class PrivateMatchRulePreset
 	{
@@ -578,9 +578,9 @@ namespace Spark
 			if (PresetSelector.SelectedIndex == 0) return;
 
 			string rulesetName = PresetSelector.SelectedValue.ToString() ?? string.Empty;
-			if (presets.ContainsKey(rulesetName))
+			if (presets.TryGetValue(rulesetName, out PrivateMatchRulePreset value))
 			{
-				Rules = presets[rulesetName].rules;
+				Rules = value.rules;
 			}
 		}
 	}

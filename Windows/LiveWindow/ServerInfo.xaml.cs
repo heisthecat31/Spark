@@ -15,7 +15,7 @@ using EchoVRAPI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Spark
+namespace Spark.Windows.LiveWindow
 {
 	public partial class ServerInfo : UserControl
 	{

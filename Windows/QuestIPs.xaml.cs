@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Frame = EchoVRAPI.Frame;
 
-namespace Spark
+namespace Spark.Windows
 {
 	public partial class QuestIPs : Window
 	{

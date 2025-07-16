@@ -4,13 +4,13 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Spark
+namespace Spark.Windows.LiveWindow
 {
-	public partial class EchoGP
+	public partial class EchoGP : UserControl
 	{
 		private readonly Timer outputUpdateTimer = new Timer();
 
-		public EchoGP()
+		public EchoGP() 
 		{
 			InitializeComponent();
 		}

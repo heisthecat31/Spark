@@ -5,7 +5,7 @@ using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Spark
+namespace Spark.Windows.LiveWindow
 {
 	public partial class CreateServerControls : UserControl
 	{

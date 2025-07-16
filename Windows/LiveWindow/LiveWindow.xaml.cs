@@ -27,13 +27,13 @@ using Newtonsoft.Json.Linq;
 using static Logger;
 using Frame = EchoVRAPI.Frame;
 
-namespace Spark
+namespace Spark.Windows.LiveWindow
 {
 	/// <summary>
 	/// Interaction logic for LiveWindow.xaml
 	/// </summary>
 	/// 
-	public partial class LiveWindow
+	public partial class LiveWindow : Window
 	{
 		private readonly System.Timers.Timer outputUpdateTimer = new System.Timers.Timer();
 

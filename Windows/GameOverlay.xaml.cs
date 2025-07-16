@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using System.Windows.Media;
 using Button = System.Windows.Controls.Button;
 
-namespace Spark
+namespace Spark.Windows
 {
 	/// <summary>
 	/// Interaction logic for GameOverlay.xaml

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace Spark
+namespace Spark.Windows
 {
 	public partial class CreateServer : Window
 	{

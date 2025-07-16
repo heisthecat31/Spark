@@ -113,14 +113,14 @@ namespace Spark
 					int foundIndex = 0;
 
 					// try using the cached dictionary of indices first
-					if (playerCameraIndices.ContainsKey(playerName))
+					if (playerCameraIndices.TryGetValue(playerName, out int value))
 					{
-						SetCameraMode(CameraMode.pov, playerCameraIndices[playerName]);
+						SetCameraMode(CameraMode.pov, value);
 						await Task.Delay(50);
 						(Player minPlayer, float dist) = await CheckNearestPlayer();
 						LoggerEvents.Log(Program.lastFrame, $"Initial player camera distance: {dist:N3} m.  Name: {minPlayer.name}");
 						found = minPlayer.name == playerName;
-						foundIndex = playerCameraIndices[playerName];
+						foundIndex = value;
 					}
 
 					// loop through all the players twice if we don't find the right one the first time

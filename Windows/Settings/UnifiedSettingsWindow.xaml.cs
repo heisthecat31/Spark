@@ -17,12 +17,12 @@ using Newtonsoft.Json.Linq;
 using System.Net;
 using EchoVRAPI;
 
-namespace Spark
+namespace Spark.Windows.Settings
 {
 	/// <summary>
 	/// Interaction logic for UnifiedSettingsWindow.xaml
 	/// </summary>
-	public partial class UnifiedSettingsWindow
+	public partial class UnifiedSettingsWindow : Window
 	{
 		// set to false initially so that loading the settings from disk doesn't activate the events
 		private bool initialized;

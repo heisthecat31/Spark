@@ -6,7 +6,7 @@ using System.Windows.Media;
 using Newtonsoft.Json.Linq;
 using Timer = System.Timers.Timer;
 
-namespace Spark
+namespace Spark.Windows
 {
 	/// <summary>
 	/// Interaction logic for Speedometer.xaml

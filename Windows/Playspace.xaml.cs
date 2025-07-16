@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using EchoVRAPI;
 
-namespace Spark
+namespace Spark.Windows
 {
 	/// <summary>
 	/// Interaction logic for Playspace.xaml
