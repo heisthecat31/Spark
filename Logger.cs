@@ -210,12 +210,13 @@ public class Logger
 
 			lock (dataToLogLock)
 			{
-				if (!dataToLog.ContainsKey(fileName))
+				if (!dataToLog.TryGetValue(fileName, out List<string> value))
 				{
-					dataToLog.Add(fileName, new List<string>());
+                    value = new List<string>();
+                    dataToLog.Add(fileName, value);
 				}
 
-				dataToLog[fileName].Add(strBuilder.ToString());
+                value.Add(strBuilder.ToString());
 			}
 		}
 		catch (Exception e)
