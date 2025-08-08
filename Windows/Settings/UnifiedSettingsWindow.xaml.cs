@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Windows.Navigation;
 using System.Windows.Data;
 using Newtonsoft.Json;
@@ -337,14 +336,15 @@ namespace Spark
 		{
 			if (!initialized) return;
 			string selectedPath = "";
-			CommonOpenFileDialog folderBrowserDialog = new CommonOpenFileDialog
+			
+			var folderBrowserDialog = new OpenFolderDialog
 			{
-				InitialDirectory = SparkSettings.instance.saveFolder,
-				IsFolderPicker = true
+				InitialDirectory = SparkSettings.instance.saveFolder
 			};
-			if (folderBrowserDialog.ShowDialog() == CommonFileDialogResult.Ok)
+			
+			if (folderBrowserDialog.ShowDialog() == true)
 			{
-				selectedPath = folderBrowserDialog.FileName;
+				selectedPath = folderBrowserDialog.FolderName;
 			}
 
 			if (selectedPath != "")

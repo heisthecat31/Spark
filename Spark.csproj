@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<StartupObject>Spark.App</StartupObject>
@@ -18,7 +18,7 @@
     <PackageId>Spark</PackageId>
     <AssemblyName>Spark</AssemblyName>
     <RootNamespace>Spark</RootNamespace>
-    <LangVersion>9</LangVersion>
+    <LangVersion>12</LangVersion>
     <PackageVersion>2.6.16</PackageVersion>
   </PropertyGroup>
 
@@ -199,18 +199,17 @@
     <PackageReference Include="Fleck" Version="1.2.0" />
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf.NetCore" Version="1.0.18" />
     <PackageReference Include="HidSharpCore" Version="1.2.1.1" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1518.46" />
-    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="7.0.0" />
-    <PackageReference Include="NAudio" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2592.51" />
+    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="8.0.0" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="NetMQ" Version="4.0.1.10" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="obs-websocket-dotnet" Version="5.0.0.3" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
-    <PackageReference Include="System.Management" Version="7.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
     <PackageReference Include="Vosk" Version="0.3.38" />
-    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
     <PackageReference Include="ZstdNet" Version="1.4.5" />
     <PackageReference Include="EchoVRAPI" Version="1.1.2" />
     <PackageReference Include="ButterReplays" Version="1.3.4" />
