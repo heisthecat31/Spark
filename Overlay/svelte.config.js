@@ -8,8 +8,11 @@ const config = {
 	preprocess: preprocess(),
 
 	kit: {
-		adapter: adapter(),
-		trailingSlash: "always",
+		adapter: adapter({
+			fallback: undefined,
+			precompress: false,
+			strict: true
+		})
 	}
 };
 

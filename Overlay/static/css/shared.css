@@ -1,7 +1,7 @@
-
 @font-face {
 	font-family: 'Inconsolata';
-	src: url('/fonts/Inconsolata.woff2') format('woff2'), url('/fonts/Inconsolata.woff') format('woff'), url('/fonts/Inconsolata.ttf') format('truetype');
+	src: url('/fonts/Inconsolata.woff2') format('woff2'),
+		url('/fonts/Inconsolata.woff') format('woff'), url('/fonts/Inconsolata.ttf') format('truetype');
 }
 
 .container_free {
@@ -15,16 +15,15 @@
 	/*background: url("/dev/img/empty_echo_background.png");*/
 }
 
-
 @media screen and (max-width: 1300px) {
 	.container_free {
-		font-size: .6em;
+		font-size: 0.6em;
 	}
 }
 
 @media screen and (max-width: 1600px) {
 	.container_free {
-		font-size: .8em;
+		font-size: 0.8em;
 	}
 }
 

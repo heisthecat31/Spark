@@ -30,7 +30,7 @@ body {
 	visibility: hidden;
 }
 
-.player>div {
+.player > div {
 	border-radius: 100px;
 	width: 30px;
 	height: 30px;
@@ -39,7 +39,7 @@ body {
 	left: -15px;
 }
 
-.player>p {
+.player > p {
 	font-family: Arial, sans-serif;
 	color: white;
 	font-weight: bold;
@@ -51,11 +51,11 @@ body {
 	font-size: 20px;
 }
 
-.blue>div {
+.blue > div {
 	background-color: #0199ff;
 }
 
-.orange>div {
+.orange > div {
 	background-color: #ff8d04;
 }
 
@@ -63,7 +63,7 @@ body {
 	position: absolute;
 	top: 86.5px;
 	left: 281.5px;
-	transition: all .3s;
+	transition: all 0.3s;
 }
 
 #timeout_banner {
@@ -75,6 +75,6 @@ body {
 	visibility: hidden;
 }
 
-#timeout_banner>img {
+#timeout_banner > img {
 	width: 100%;
 }

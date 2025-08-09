@@ -1,14 +1,13 @@
-﻿<svelte:head>
-    <title>Minimap Overlay</title>
-</svelte:head>
+﻿<script>
+	import Minimap from '$lib/components/Minimap.svelte';
 
-<script>
-    import Minimap from "$lib/components/Minimap.svelte";
-    
-    // TODO implement this
+	// TODO implement this
 </script>
 
+<svelte:head>
+	<title>Minimap Overlay</title>
+</svelte:head>
 
 <div>
-    <Minimap/>
+	<Minimap />
 </div>

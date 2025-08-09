@@ -1,26 +1,25 @@
 <script>
 	import * as THREE from 'three';
-	import {onDestroy, onMount} from "svelte";
-	import {SparkWebsocket} from "../js/spark_websocket.js";
-	import {empty_frame} from "../js/empty_frame";
-	import {MeshLine, MeshLineMaterial, MeshLineRaycast} from 'three.meshline';
+	import { onDestroy, onMount } from 'svelte';
+	import { SparkWebsocket } from '../js/spark_websocket.js';
+	import { empty_frame } from '../js/empty_frame';
+	import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline';
 
 	let frame = null;
 
 	const scene = new THREE.Scene();
 	let camera;
 	const geometry = new THREE.BoxGeometry();
-	const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+	const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 	const cube = new THREE.Mesh(geometry, material);
 	let renderer;
 	let blueGoal;
 	let orangeGoal;
 
 	let discPositions = [];
-	const lineMaterial = new MeshLineMaterial({lineWidth: .04});
+	const lineMaterial = new MeshLineMaterial({ lineWidth: 0.04 });
 	const discLine = new MeshLine();
 	const discLineGeo = new THREE.BufferGeometry();
-
 
 	function animate() {
 		requestAnimationFrame(animate);
@@ -42,63 +41,61 @@
 		);
 		camera.lookAt(lookPos);
 
-
-		discPositions.push(new THREE.Vector3(
-			-frame['disc']['position'][2],
-			frame['disc']['position'][1],
-			frame['disc']['position'][0]
-		));
-		if (discPositions.length > 100){
+		discPositions.push(
+			new THREE.Vector3(
+				-frame['disc']['position'][2],
+				frame['disc']['position'][1],
+				frame['disc']['position'][0]
+			)
+		);
+		if (discPositions.length > 100) {
 			discPositions.shift();
 		}
 		discLineGeo.setFromPoints(discPositions);
-		discLine.setGeometry(discLineGeo)
-
+		discLine.setGeometry(discLineGeo);
 
 		renderer.render(scene, camera);
 	}
 
 	function drawLine() {
 		const material = new MeshLineMaterial({
-			lineWidth: .04
+			lineWidth: 0.04
 		});
 
-		fetch("http://localhost:6724/disc_positions").then(resp => resp.json()).then(j => {
+		fetch('http://localhost:6724/disc_positions')
+			.then((resp) => resp.json())
+			.then((j) => {
+				const points = [];
 
-			const points = [];
+				console.log(j);
 
-			console.log(j);
+				for (let i = 0; i < j.length; i++) {
+					points.push(new THREE.Vector3(-j[i]['z'], j[i]['y'], j[i]['x']));
+				}
 
-			for (let i = 0; i < j.length; i++) {
-				points.push(new THREE.Vector3(-j[i]['z'], j[i]['y'], j[i]['x']));
-			}
-
-			const geometry = new THREE.BufferGeometry().setFromPoints(points);
-			const line = new MeshLine();
-			line.setGeometry(geometry);
-			const mesh = new THREE.Mesh(line, material);
-			scene.add(mesh);
-		});
-
+				const geometry = new THREE.BufferGeometry().setFromPoints(points);
+				const line = new MeshLine();
+				line.setGeometry(geometry);
+				const mesh = new THREE.Mesh(line, material);
+				scene.add(mesh);
+			});
 	}
 
 	function resize() {
-		renderer.setSize(window.innerWidth, window.innerHeight)
+		renderer.setSize(window.innerWidth, window.innerHeight);
 		camera.aspect = window.innerWidth / window.innerHeight;
 		camera.updateProjectionMatrix();
 	}
 
 	function drawGoalLogo() {
 		let loader = new THREE.TextureLoader();
-		loader.crossOrigin = "";
-		let texture = loader.load(
-			"https://ignitevr.gg/images/logos/primary-white.png"
-		);
+		loader.crossOrigin = '';
+		let texture = loader.load('https://ignitevr.gg/images/logos/primary-white.png');
 		let img = new THREE.MeshBasicMaterial({
-			opacity: .5,
+			opacity: 0.5,
 			side: THREE.DoubleSide,
 			map: texture,
-			transparent: true,
+			transparent: true
 		});
 
 		blueGoal = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), img);
@@ -122,14 +119,13 @@
 		// ~75 for sideline cam
 		// 85 for freecam
 		camera = new THREE.PerspectiveCamera(85, window.innerWidth / window.innerHeight, 0.1, 200);
-		renderer = new THREE.WebGLRenderer({antialias: true, canvas: el, alpha: true});
+		renderer = new THREE.WebGLRenderer({ antialias: true, canvas: el, alpha: true });
 		// scene.add(cube);
 
-
-		discPositions.push(new THREE.Vector3(0,0,0));
-		discPositions.push(new THREE.Vector3(10,10,10));
+		discPositions.push(new THREE.Vector3(0, 0, 0));
+		discPositions.push(new THREE.Vector3(10, 10, 10));
 		discLineGeo.setFromPoints(discPositions);
-		discLine.setGeometry(discLineGeo)
+		discLine.setGeometry(discLineGeo);
 		const lineMesh = new THREE.Mesh(discLine, lineMaterial);
 		scene.add(lineMesh);
 
@@ -145,7 +141,7 @@
 
 	onMount(() => {
 		let firstLoad = true;
-		sw.subscribe("frame_30hz", data => {
+		sw.subscribe('frame_30hz', (data) => {
 			if (data == null) return;
 			frame = data;
 			if (firstLoad) {
@@ -158,4 +154,4 @@
 	onDestroy(() => sw.close());
 </script>
 
-<canvas bind:this={el}></canvas>
+<canvas bind:this={el} />

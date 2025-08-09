@@ -15,9 +15,6 @@ tags:
   - name: Camera Write
     description: Enables programmatic control over the spectator camera
 paths:
-  
-  
-  
   /spark_info:
     get:
       tags:
@@ -27,20 +24,19 @@ paths:
         '200':
           description: Success
 
-
   /api/camera/go_to_waypoint/{index}:
     get:
       tags:
         - Camera Write
       summary: Goes to a specific Camera Write waypoint
       parameters:
-        - name: "index"
-          in: "path"
-          description: "Index of the camera waypoint"
+        - name: 'index'
+          in: 'path'
+          description: 'Index of the camera waypoint'
           required: true
           example: 0
           schema:
-            type: "integer"
+            type: 'integer'
       responses:
         '200':
           description: Success
@@ -50,13 +46,13 @@ paths:
         - Camera Write
       summary: Plays a specfic Camera Write animation
       parameters:
-        - name: "index"
-          in: "path"
-          description: "Index of the camera animation"
+        - name: 'index'
+          in: 'path'
+          description: 'Index of the camera animation'
           required: true
           example: 0
           schema:
-            type: "integer"
+            type: 'integer'
       responses:
         '200':
           description: Success
@@ -67,13 +63,13 @@ paths:
         - Camera Write
       summary: Goes to a specific Camera Write waypoint
       parameters:
-        - name: "name"
-          in: "path"
-          description: "Name of the camera waypoint"
+        - name: 'name'
+          in: 'path'
+          description: 'Name of the camera waypoint'
           required: true
           example: 0
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '200':
           description: Success
@@ -83,35 +79,34 @@ paths:
         - Camera Write
       summary: Plays a specfic Camera Write animation
       parameters:
-        - name: "name"
-          in: "path"
-          description: "Name of the camera animation"
+        - name: 'name'
+          in: 'path'
+          description: 'Name of the camera animation'
           required: true
           example: 0
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '200':
           description: Success
-  
-  
+
   /api/camera/orbit_disc_enabled/{enabled}:
     get:
       tags:
         - Camera Write
       summary: Enables or disables Disc Orbit animation
       parameters:
-        - name: "enabled"
-          in: "path"
-          description: "Enabled or not"
+        - name: 'enabled'
+          in: 'path'
+          description: 'Enabled or not'
           required: true
           example: true
           schema:
-            type: "boolean"
+            type: 'boolean'
       responses:
         '200':
           description: Success
-  
+
   /api/camera/go_to_discholder_pov:
     get:
       tags:
@@ -120,7 +115,7 @@ paths:
       responses:
         '200':
           description: Success
-  
+
   /api/reload_camera_settings:
     get:
       tags:
@@ -129,124 +124,115 @@ paths:
       responses:
         '200':
           description: Success
-          
+
   /api/camera/pov/{player_name}:
     get:
       tags:
         - Camera Write
       summary: Switches to POV of the selected player
       parameters:
-        - name: "player_name"
-          in: "path"
-          description: "The username of the player to switch to"
+        - name: 'player_name'
+          in: 'path'
+          description: 'The username of the player to switch to'
           required: true
-          example: "NtsFranz"
+          example: 'NtsFranz'
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '200':
           description: Success
-          
+
   /api/camera/follow/{player_name}:
     get:
       tags:
         - Camera Write
       summary: Switches to follow cam of the selected player
       parameters:
-        - name: "player_name"
-          in: "path"
-          description: "The username of the player to switch to"
+        - name: 'player_name'
+          in: 'path'
+          description: 'The username of the player to switch to'
           required: true
-          example: "NtsFranz"
+          example: 'NtsFranz'
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '200':
           description: Success
-  
-  
-  
-  
+
   /api/set_team_name/{team_color}/{team_name}:
     post:
       tags:
         - Overlays
       summary: Sets a team name for a particular team color
       parameters:
-        - name: "team_color"
-          in: "path"
-          description: "orange or blue"
+        - name: 'team_color'
+          in: 'path'
+          description: 'orange or blue'
           required: true
-          example: "blue"
+          example: 'blue'
           schema:
-            type: "string"
+            type: 'string'
             enum:
-              - "blue"
-              - "orange"
-        - name: "team_name"
-          in: "path"
-          description: "Team name to set"
+              - 'blue'
+              - 'orange'
+        - name: 'team_name'
+          in: 'path'
+          description: 'Team name to set'
           required: true
-          example: "Ignite"
+          example: 'Ignite'
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '200':
           description: Success
-  
-  
-  
+
   /api/set_team_logo/{team_color}/{team_logo}:
     post:
       tags:
         - Overlays
       summary: Sets a team logo url for a particular team color
       parameters:
-        - name: "team_color"
-          in: "path"
-          description: "orange or blue"
+        - name: 'team_color'
+          in: 'path'
+          description: 'orange or blue'
           required: true
-          example: "blue"
+          example: 'blue'
           schema:
-            type: "string"
+            type: 'string'
             enum:
-              - "blue"
-              - "orange"
-        - name: "team_logo"
-          in: "path"
-          description: "Team logo url to set"
+              - 'blue'
+              - 'orange'
+        - name: 'team_logo'
+          in: 'path'
+          description: 'Team logo url to set'
           required: true
-          example: "https://ignitevr.gg/images/logos/primary.png"
+          example: 'https://ignitevr.gg/images/logos/primary.png'
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '200':
           description: Success
-  
-  
-  
+
   /api/set_team_details/{team_color}:
     post:
       tags:
         - Overlays
       summary: Sets a team name and logo for a particular team color
       parameters:
-        - name: "team_color"
-          in: "path"
-          description: "orange or blue"
+        - name: 'team_color'
+          in: 'path'
+          description: 'orange or blue'
           required: true
-          example: "blue"
+          example: 'blue'
           schema:
-            type: "string"
+            type: 'string'
             enum:
-              - "blue"
-              - "orange"
+              - 'blue'
+              - 'orange'
       responses:
         '200':
           description: Success
-  
-  
-  
+
   /api/set_caster_prefs:
     post:
       tags:
@@ -255,26 +241,24 @@ paths:
       responses:
         '200':
           description: Success
-  
-  
+
   /api/set_team_names_source/{source}:
     post:
       tags:
         - Overlays
       summary: Sets the source of team names/logos
       parameters:
-        - name: "source"
-          in: "path"
-          description: "The index of the source. 0 for manual, 1 for VRML API"
+        - name: 'source'
+          in: 'path'
+          description: 'The index of the source. 0 for manual, 1 for VRML API'
           required: true
           example: 0
           schema:
-            type: "integer"
+            type: 'integer'
       responses:
         '200':
           description: Success
-  
-  
+
   /api/set_round_scores:
     post:
       tags:
@@ -283,7 +267,7 @@ paths:
       responses:
         '200':
           description: Success
-  
+
   /api/get_overlay_config:
     get:
       tags:
@@ -292,28 +276,25 @@ paths:
       responses:
         '200':
           description: Success
-  
-  
-  
+
   /api/vrml_api/{route}:
     get:
       tags:
         - Overlays
       summary: A local proxy for the VRML API at apiignite.vrmasterleague.com. This has a local cache of 30 minutes, so it can be much faster for repeated requests.
-      
+
       parameters:
-        - name: "route"
-          in: "path"
-          description: "The VRML API path to be fetched"
+        - name: 'route'
+          in: 'path'
+          description: 'The VRML API path to be fetched'
           required: true
-          example: "EchoArena/Casters"
+          example: 'EchoArena/Casters'
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '200':
           description: Success
-  
-  
+
   /api/focus_spark:
     get:
       tags:
@@ -322,8 +303,7 @@ paths:
       responses:
         '200':
           description: Success
-  
-  
+
   /api/settings/set:
     post:
       tags:
@@ -332,25 +312,23 @@ paths:
       responses:
         '200':
           description: Success
-  
+
   /api/settings/get/{setting_name}:
     get:
       tags:
         - General
       summary: Gets any of Spark's settings.
       parameters:
-        - name: "setting_name"
-          in: "path"
-          description: "The path to the setting to be fetched"
+        - name: 'setting_name'
+          in: 'path'
+          description: 'The path to the setting to be fetched'
           required: true
-          example: "echoVRPath"
+          example: 'echoVRPath'
           schema:
-            type: "string"
+            type: 'string'
       responses:
         '200':
           description: Success
-
-
 
   /api/questips:
     get:
@@ -360,10 +338,7 @@ paths:
       responses:
         '200':
           description: Success
-  
-  
-  
-  
+
   /session:
     get:
       tags:
@@ -372,7 +347,7 @@ paths:
       responses:
         '200':
           description: Success
-  
+
   /stats:
     get:
       tags:
@@ -381,7 +356,7 @@ paths:
       responses:
         '200':
           description: Success
-  
+
   /overlay_info:
     get:
       tags:
@@ -390,7 +365,7 @@ paths:
       responses:
         '200':
           description: Success
-  
+
   /disc_positions:
     get:
       tags:
@@ -399,16 +374,16 @@ paths:
       responses:
         '200':
           description: Success
-          
+
           # /disc_position_heatmap:
           #   get:
           #     tags:
           #       - Game State
-          #     summary: An overlay with 
+          #     summary: An overlay with
           #     responses:
           #       '200':
           #         description: Success
-  
+
   /get_player_speed:
     get:
       tags:
@@ -417,7 +392,7 @@ paths:
       responses:
         '200':
           description: Success
-  
+
   /get_disc_speed:
     get:
       tags:
@@ -426,20 +401,20 @@ paths:
       responses:
         '200':
           description: Success
-          
+
           # /speedometer/{source}:
           #   get:
           #     tags:
           #       - Game State
           #     summary: Returns the current speed of the desired source.
-          
+
           #     parameters:
           #       - name: "source"
           #         in: "path"
           #         description: "The source of the speed to be fetched"
           #         required: true
           #         example: "disc"
-          #         schema: 
+          #         schema:
           #           type: "string"
           #           enum:
           #             - "disc"
@@ -449,29 +424,12 @@ paths:
           #     responses:
           #       '200':
           #         description: Success
-          
-          
+
   /api/db/jousts:
     get:
       tags:
         - Local Database
       summary: Returns a list of all prior jousts recorded on this computer
       responses:
-        "200":
-          description: "OK"
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
+        '200':
+          description: 'OK'

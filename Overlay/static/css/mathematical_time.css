@@ -1,43 +1,41 @@
 #mathematical_time_box {
-    position: relative;
-    margin: auto;
-    width: 7.6em;
+	position: relative;
+	margin: auto;
+	width: 7.6em;
 }
 #mathematical_time_content {
-    display: none;
-    background: linear-gradient(#222 0%, #444 100%);
-    width: 5.75em;
-    color: white;
-    text-align: center;
-    font-family: Consolas, monospace;
-    font-size: 1.1em;
-    font-weight: 100;
-    padding: 1.13em .57em .28em;
-    margin: -1em auto 0;
-    /*border-radius: 10px;*/
-    border: .05em solid #aaa5;
-    position: absolute;
-    z-index: -1;
-    box-shadow: 0 0 1.13em #000a;
-    top: 7.5em;
+	display: none;
+	background: linear-gradient(#222 0%, #444 100%);
+	width: 5.75em;
+	color: white;
+	text-align: center;
+	font-family: Consolas, monospace;
+	font-size: 1.1em;
+	font-weight: 100;
+	padding: 1.13em 0.57em 0.28em;
+	margin: -1em auto 0;
+	/*border-radius: 10px;*/
+	border: 0.05em solid #aaa5;
+	position: absolute;
+	z-index: -1;
+	box-shadow: 0 0 1.13em #000a;
+	top: 7.5em;
 }
 
 #mathematical_time_content:after {
-    content: '';
-    height: .05em;
-    background-color: white;
-    position: absolute;
-    bottom: 0;
-    width: 101%;
-    left: 0;
-    margin: -.05em;
-    padding: 0;
+	content: '';
+	height: 0.05em;
+	background-color: white;
+	position: absolute;
+	bottom: 0;
+	width: 101%;
+	left: 0;
+	margin: -0.05em;
+	padding: 0;
 }
 
 #mathematical_time {
-    font-family: 'Inconsolata', monospace;
-    font-size: 1.13em;
-    font-weight: 900;
-    
+	font-family: 'Inconsolata', monospace;
+	font-size: 1.13em;
+	font-weight: 900;
 }
-

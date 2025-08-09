@@ -6,4 +6,4 @@
 	<title>Event Log</title>
 </svelte:head>
 
-<EventLog/>
+<EventLog />

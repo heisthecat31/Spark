@@ -16,8 +16,6 @@
 	let mathematicalTimeVisible = false;
 	let mathematicalTimeText = '';
 
-
-
 	let sw = new SparkWebsocket();
 	sw.subscribe('goal', (data) => {
 		if (data['team_scored'] == 'blue') {
@@ -184,14 +182,8 @@
 						{:else if $overlay_config['round_scores']['round_scores_orange'].length - 1 === i}
 							<!-- Current round -->
 							<div class="unfinished">
-								<div
-									class="orange"
-									style="flex-grow:{$frame['orange_points']}"
-								/>
-								<div
-									class="blue"
-									style="flex-grow:{$frame['blue_points']}"
-								/>
+								<div class="orange" style="flex-grow:{$frame['orange_points']}" />
+								<div class="blue" style="flex-grow:{$frame['blue_points']}" />
 							</div>
 						{:else}
 							<!-- Future rounds -->

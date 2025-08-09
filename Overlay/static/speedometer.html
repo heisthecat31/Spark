@@ -1,45 +1,43 @@
 <html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Player Speed Overlay</title>
+		<style>
+			body {
+				background: #0000;
+				color: white;
+				font-family: 'Inconsolata', monospace;
+				font-size: 2em;
+				text-align: right;
+			}
 
-<head>
-    <meta charset="utf-8">
-    <title>Player Speed Overlay</title>
-    <style>
-        body {
-            background: #0000;
-            color: white;
-            font-family: 'Inconsolata', monospace;
-            font-size: 2em;
-            text-align: right;
-        }
+			@font-face {
+				font-family: 'Inconsolata';
+				src: url('/fonts/Inconsolata.woff2') format('woff2'),
+					url('/fonts/Inconsolata.woff') format('woff'),
+					url('/fonts/Inconsolata.ttf') format('truetype');
+			}
+		</style>
+		<script src="/js/util.js"></script>
+	</head>
 
-        @font-face {
-            font-family: 'Inconsolata';
-            src: url('/fonts/Inconsolata.woff2') format('woff2'),
-            url('/fonts/Inconsolata.woff') format('woff'),
-            url('/fonts/Inconsolata.ttf') format('truetype');
-        }
-    </style>
-    <script src="/js/util.js"></script>
-</head>
+	<body>
+		<div>
+			<h1 id="player_speed">---</h1>
+		</div>
 
-<body>
-<div>
-    <h1 id="player_speed">---</h1>
-</div>
+		<script>
+			let player_speed = document.getElementById('player_speed');
 
-<script>
-    let player_speed = document.getElementById("player_speed");
+			function get_speed() {
+				const url = 'FETCH_URL';
+				httpGetAsync(url, (resp) => {
+					let data = JSON.parse(resp);
+					player_speed.innerText = Math.round(data['speed'] * 100) / 100 + ' m/s';
+				});
+			}
 
-    function get_speed() {
-        const url = 'FETCH_URL';
-        httpGetAsync(url, (resp) => {
-            let data = JSON.parse(resp);
-            player_speed.innerText = Math.round(data['speed'] * 100) / 100 + " m/s";
-        });
-    }
-
-    setInterval(get_speed, 250);
-</script>
-</body>
-
+			setInterval(get_speed, 250);
+		</script>
+	</body>
 </html>
