@@ -531,15 +531,15 @@ However, C# with .NET is optimal for this use case because:
 | Feature Category | Requires C# | Requires Windows | Requires Local Agent | Could Be Cloud/Remote |
 |-----------------|-------------|------------------|---------------------|----------------------|
 | Game Data Capture | ❌ | ✅ | ✅ | ❌ |
-| WPF UI | ✅ | ✅ | ✅ | ❌ |
-| Replay Recording | ❌ | ❌ | ✅ | Partial |
+| WPF UI | ✅ | ✅ | ❌ | ❌ |
+| Replay Recording | ❌ | ✅ | ✅ | Partial |
 | Event Detection | ❌ | ❌ | ❌ | ✅ |
 | NVIDIA Highlights | ❌ | ✅ | ✅ | ❌ |
 | OBS Integration | ❌ | Preferred | Preferred | Partial |
 | Overlay Server | ❌ | ❌ | Preferred | ✅ |
 | Camera Control | ❌ | ✅ | ✅ | ❌ |
 | Quest Integration | ❌ | ❌ | ✅ (Network) | ❌ |
-| Discord Integration | ❌ | ❌ | ✅ | Partial |
+| Discord Integration | ❌ | ❌ | Preferred | Partial |
 | TTS | ❌ | ✅ | ✅ | ❌ |
 | Speech Recognition | ❌ | ✅ | ✅ | ❌ |
 | Global Hotkeys | ❌ | ✅ | ✅ | ❌ |
