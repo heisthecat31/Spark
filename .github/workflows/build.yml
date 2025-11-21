@@ -1,0 +1,71 @@
+name: Build Spark
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET 8.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore Spark.csproj
+      
+    - name: Build
+      run: dotnet build Spark.csproj --configuration Release --no-restore
+      
+    - name: Publish executable
+      run: dotnet publish Spark.csproj --configuration Release --no-build --output ./publish --self-contained false
+      
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Spark-Windows-x64
+        path: ./publish/**/*
+        retention-days: 30
+        
+    - name: Display build output
+      run: dir ./publish
+      
+  build-self-contained:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET 8.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore Spark.csproj
+      
+    - name: Build
+      run: dotnet build Spark.csproj --configuration Release --no-restore
+      
+    - name: Publish self-contained executable
+      run: dotnet publish Spark.csproj --configuration Release --runtime win-x64 --self-contained true --output ./publish-self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+      
+    - name: Upload self-contained artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Spark-Windows-x64-SelfContained
+        path: ./publish-self-contained/**/*
+        retention-days: 30
+        
+    - name: Display build output
+      run: dir ./publish-self-contained
