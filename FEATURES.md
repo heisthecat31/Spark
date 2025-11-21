@@ -538,7 +538,7 @@ However, C# with .NET is optimal for this use case because:
 | OBS Integration | ❌ | Preferred | Preferred | Partial |
 | Overlay Server | ❌ | ❌ | Preferred | ✅ |
 | Camera Control | ❌ | ✅ | ✅ | ❌ |
-| Quest Integration | ❌ | ❌ | ✅ (Network) | ❌ |
+| Quest Integration | ❌ | ❌ | ✅ (LAN) | ❌ |
 | Discord Integration | ❌ | ❌ | Preferred | Partial |
 | TTS | ❌ | ✅ | ✅ | ❌ |
 | Speech Recognition | ❌ | ✅ | ✅ | ❌ |
@@ -551,4 +551,5 @@ However, C# with .NET is optimal for this use case because:
 - ❌ = Not Required
 - Preferred = Works best locally but not strictly required
 - Partial = Some aspects could be remote
+- (LAN) = Requires agent on local area network (not necessarily same machine)
 
