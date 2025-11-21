@@ -27,7 +27,7 @@ jobs:
       run: dotnet build Spark.csproj --configuration Release --no-restore
       
     - name: Publish executable
-      run: dotnet publish Spark.csproj --configuration Release --no-build --output ./publish --self-contained false
+      run: dotnet publish Spark.csproj --configuration Release --no-build --output ./publish
       
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
@@ -37,7 +37,8 @@ jobs:
         retention-days: 30
         
     - name: Display build output
-      run: dir ./publish
+      shell: pwsh
+      run: Get-ChildItem ./publish
       
   build-self-contained:
     runs-on: windows-latest
@@ -58,7 +59,14 @@ jobs:
       run: dotnet build Spark.csproj --configuration Release --no-restore
       
     - name: Publish self-contained executable
-      run: dotnet publish Spark.csproj --configuration Release --runtime win-x64 --self-contained true --output ./publish-self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+      run: |
+        dotnet publish Spark.csproj `
+          --configuration Release `
+          --runtime win-x64 `
+          --self-contained true `
+          --output ./publish-self-contained `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true
       
     - name: Upload self-contained artifact
       uses: actions/upload-artifact@v4
@@ -68,4 +76,5 @@ jobs:
         retention-days: 30
         
     - name: Display build output
-      run: dir ./publish-self-contained
+      shell: pwsh
+      run: Get-ChildItem ./publish-self-contained
