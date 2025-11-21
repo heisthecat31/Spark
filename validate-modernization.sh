@@ -45,7 +45,7 @@ if [ -f "Spark.csproj" ]; then
         exit 1
     fi
     
-    if grep -q "LangVersion>12<" Spark.csproj; then
+    if grep -q "<LangVersion>12</LangVersion>" Spark.csproj; then
         echo "✅ C# language version is 12"
     else
         echo "❌ C# language version is not modernized"
