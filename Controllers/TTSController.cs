@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -46,9 +46,7 @@ namespace Spark
 
 		public TTSController()
 		{
-			// TTS won't work without Discord auth
-			if (DiscordOAuth.firebaseCred == null) return;
-
+			// TTS initialization no longer requires Discord auth
 			ttsThread = new Thread(TTSThread);
 			ttsThread.IsBackground = true;
 			ttsThread.Start();
