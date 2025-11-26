@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -3763,9 +3763,9 @@ namespace Spark
 			{
 				link = SparkSettings.instance.atlasLinkStyle switch
 				{
-					0 => $"<spark://c/{sessionid}>",
-					1 => $"<spark://j/{sessionid}>",
-					2 => $"<spark://s/{sessionid}>",
+					0 => $"https://echo.taxi/spark://j/{sessionid}",
+					1 => $"https://echo.taxi/spark://j/{sessionid}",
+					2 => $"https://echo.taxi/spark://j/{sessionid}",
 					_ => link
 				};
 			}
@@ -3773,9 +3773,9 @@ namespace Spark
 			{
 				link = SparkSettings.instance.atlasLinkStyle switch
 				{
-					0 => $"spark://c/{sessionid}",
-					1 => $"spark://j/{sessionid}",
-					2 => $"spark://s/{sessionid}",
+					0 => $"https://echo.taxi/spark://j/{sessionid}",
+					1 => $"https://echo.taxi/spark://j/{sessionid}",
+					2 => $"https://echo.taxi/spark://j/{sessionid}",
 					_ => link
 				};
 			}
