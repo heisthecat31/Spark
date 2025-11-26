@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -1841,7 +1841,7 @@ namespace Spark
 						{
 							Process.Start(new ProcessStartInfo
 							{
-								FileName = "spark://c/" + match.matchid,
+								FileName = "https://echo.taxi/spark://c/" + match.matchid,
 								UseShellExecute = true
 							});
 						};
