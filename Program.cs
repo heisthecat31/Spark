@@ -3763,9 +3763,9 @@ namespace Spark
 			{
 				link = SparkSettings.instance.atlasLinkStyle switch
 				{
-					0 => $"https://echo.taxi/spark://j/{sessionid}",
+					0 => $"https://echo.taxi/spark://c/{sessionid}",
 					1 => $"https://echo.taxi/spark://j/{sessionid}",
-					2 => $"https://echo.taxi/spark://j/{sessionid}",
+					2 => $"https://echo.taxi/spark://s/{sessionid}",
 					_ => link
 				};
 			}
@@ -3773,9 +3773,9 @@ namespace Spark
 			{
 				link = SparkSettings.instance.atlasLinkStyle switch
 				{
-					0 => $"https://echo.taxi/spark://j/{sessionid}",
+					0 => $"https://echo.taxi/spark://c/{sessionid}",
 					1 => $"https://echo.taxi/spark://j/{sessionid}",
-					2 => $"https://echo.taxi/spark://j/{sessionid}",
+					2 => $"https://echo.taxi/spark://s/{sessionid}",
 					_ => link
 				};
 			}
