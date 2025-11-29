@@ -1,4 +1,4 @@
-﻿<Window x:Class="Spark.UnifiedSettingsWindow"
+<Window x:Class="Spark.UnifiedSettingsWindow"
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -77,11 +77,8 @@
 							<Button Content="{x:Static p:Resources.Install_ReShade}" Click="InstallReshade" Margin="0,0,10,0" Padding="4,4,4,4"></Button>
 							<Button Content="{x:Static p:Resources.Remove_ReShade}" Click="RemoveReshade" Margin="0,0,10,0" Padding="4,4,4,4"></Button>
 						</StackPanel>
-						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-							<ProgressBar x:Name="RumbleProgress" Visibility="Collapsed" Width="200" Margin="0,0,10,0"></ProgressBar>
-							<Button Content="Install Rumble" Click="InstallRumble" Margin="0,0,10,0" Padding="4,4,4,4"></Button>
-							<Button Content="Remove Rumble" Click="RemoveRumble" Margin="0,0,10,0" Padding="4,4,4,4"></Button>
-						</StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        </StackPanel>
 						
 						
 						<StackPanel Orientation="Horizontal">
@@ -315,7 +312,7 @@
 						<TextBlock x:Name="discordLoginWarning" Margin="16,16,16,16" Padding="10,10,10,10"
 									   Background="#FF492727" TextWrapping="Wrap"
 									   Visibility="{Binding DiscordNotLoggedInVisible}">
-								<Run Text="{x:Static p:Resources.TTS_only_works_when_logged_in_with_Discord_}" />
+								<Run Text="{x:Static p:Resources.TTS_works_whenever_i_want_it_too_}" />
 						</TextBlock>
 						<StackPanel>
 							<TextBlock x:Name="instructions" TextWrapping="Wrap"
