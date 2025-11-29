@@ -177,7 +177,7 @@ namespace Spark
 
             try
             {
-                HttpResponseMessage response = await client.PostAsync("https://discord.com/api/v6/oauth2/token", new FormUrlEncodedContent(postDataDict));
+                HttpResponseMessage response = await client.PostAsync("https://discord.com/api/v10/oauth2/token", new FormUrlEncodedContent(postDataDict));
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -193,7 +193,15 @@ namespace Spark
                     }
 
                     string responseString = await response.Content.ReadAsStringAsync();
-                    Dictionary<string, string> data = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseString);
+                    JObject jsonResponse = JObject.Parse(responseString);
+                    Dictionary<string, string> data = new Dictionary<string, string>
+                    {
+                        { "access_token", jsonResponse["access_token"]?.ToString() },
+                        { "refresh_token", jsonResponse["refresh_token"]?.ToString() },
+                        { "token_type", jsonResponse["token_type"]?.ToString() },
+                        { "expires_in", jsonResponse["expires_in"]?.ToString() },
+                        { "scope", jsonResponse["scope"]?.ToString() }
+                    };
                     ProcessResponse(data);
                 }
             }
@@ -224,9 +232,17 @@ namespace Spark
 
             try
             {
-                HttpResponseMessage response = await client.PostAsync("https://discord.com/api/v6/oauth2/token", new FormUrlEncodedContent(postDataDict));
+                HttpResponseMessage response = await client.PostAsync("https://discord.com/api/v10/oauth2/token", new FormUrlEncodedContent(postDataDict));
                 string responseString = await response.Content.ReadAsStringAsync();
-                Dictionary<string, string> data = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseString);
+                JObject jsonResponse = JObject.Parse(responseString);
+                Dictionary<string, string> data = new Dictionary<string, string>
+                {
+                    { "access_token", jsonResponse["access_token"]?.ToString() },
+                    { "refresh_token", jsonResponse["refresh_token"]?.ToString() },
+                    { "token_type", jsonResponse["token_type"]?.ToString() },
+                    { "expires_in", jsonResponse["expires_in"]?.ToString() },
+                    { "scope", jsonResponse["scope"]?.ToString() }
+                };
                 ProcessResponse(data);
             }
             catch (HttpRequestException ex)
@@ -272,17 +288,25 @@ namespace Spark
         {
             try
             {
-                HttpResponseMessage userResponse = await client.GetAsync("https://discord.com/api/v6/users/@me");
+                HttpResponseMessage userResponse = await client.GetAsync("https://discord.com/api/v10/users/@me");
                 string responseString = await userResponse.Content.ReadAsStringAsync();
-                Dictionary<string, string> data = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseString);
+                JObject jsonResponse = JObject.Parse(responseString);
 
-                if (data == null || !data.ContainsKey("username"))
+                if (jsonResponse == null || jsonResponse["username"] == null)
                 {
                     Logger.LogRow(Logger.LogType.Error, "Invalid user data received from OAuth server.");
                     return;
                 }
 
-                discordUserData = data;
+                discordUserData = new Dictionary<string, string>
+                {
+                    { "id", jsonResponse["id"]?.ToString() },
+                    { "username", jsonResponse["username"]?.ToString() },
+                    { "discriminator", jsonResponse["discriminator"]?.ToString() ?? "0" },
+                    { "avatar", jsonResponse["avatar"]?.ToString() },
+                    { "global_name", jsonResponse["global_name"]?.ToString() }
+                };
+
                 FetchAccessCodes();
             }
             catch (Exception ex)
