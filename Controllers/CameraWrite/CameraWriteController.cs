@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,6 +17,7 @@ namespace Spark
 	{
 		private static string BaseUrl => "http://127.0.0.1:" + (Program.spectateMeController.spectateMe ? SpectateMeController.SPECTATEME_PORT : "6721") + "/";
 		private static Dictionary<string, int> playerCameraIndices = new Dictionary<string, int>();
+		private static System.Timers.Timer autoFollowTimer;
 		
 		public const float Deg2Rad = 1 / 57.29578f;
 		public const float Rad2Deg = 57.29578f;
@@ -42,7 +43,14 @@ namespace Spark
 			{
 				UseCameraControlKeys();
 				playerCameraIndices.Clear();
+				StartAutoFollowTimer();
 			};
+			
+			Program.LeftGame += (_) =>
+			{
+				StopAutoFollowTimer();
+			};
+			
 			Program.PlayerJoined += (_, _, _) => { UseCameraControlKeys(); };
 			Program.PlayerLeft += (_, _, _) => { UseCameraControlKeys(); };
 			Program.PlayerSwitchedTeams += (_, _, _, _) => { UseCameraControlKeys(); };
@@ -53,6 +61,47 @@ namespace Spark
 					FollowDischolder(player, SparkSettings.instance.discHolderFollowCamMode == 1, SparkSettings.instance.discHolderFollowRestrictTeam);
 				}
 			};
+		}
+
+		private static void StartAutoFollowTimer()
+		{
+			StopAutoFollowTimer();
+			
+			// Only start timer if we're in specific player follow mode
+			if (SparkSettings.instance.spectatorCamera == 3 && 
+				!string.IsNullOrEmpty(SparkSettings.instance.followPlayerName))
+			{
+				autoFollowTimer = new System.Timers.Timer(2000); // 10 seconds
+				autoFollowTimer.Elapsed += (sender, e) => AutoFollowPlayer();
+				autoFollowTimer.AutoReset = true;
+				autoFollowTimer.Start();
+				LogRow(LogType.File, "Started auto-follow timer for player: " + SparkSettings.instance.followPlayerName);
+			}
+		}
+
+		private static void StopAutoFollowTimer()
+		{
+			autoFollowTimer?.Stop();
+			autoFollowTimer?.Dispose();
+			autoFollowTimer = null;
+		}
+
+		private static void AutoFollowPlayer()
+		{
+			if (Program.lastFrame == null) return;
+			
+			// Only auto-follow if we're still in the specific player follow mode
+			if (SparkSettings.instance.spectatorCamera == 3 && 
+				!string.IsNullOrEmpty(SparkSettings.instance.followPlayerName))
+			{
+				LogRow(LogType.File, "Auto-following player: " + SparkSettings.instance.followPlayerName);
+				SpectatorCamFindPlayer(SparkSettings.instance.followPlayerName, null, true);
+			}
+			else
+			{
+				// Stop timer if we're no longer in follow mode
+				StopAutoFollowTimer();
+			}
 		}
 
 		public static void UseCameraControlKeys()
@@ -68,20 +117,25 @@ namespace Spark
 				{
 					// auto
 					case 0:
+						StopAutoFollowTimer();
 						break;
 					// sideline
 					case 1:
+						StopAutoFollowTimer();
 						SetCameraMode(CameraMode.side);
 						break;
 					// follow client
 					case 2:
+						StopAutoFollowTimer();
 						if (Program.spectateMeController.spectateMe) SpectatorCamFindPlayer();
 						break;
 					// follow specific player
 					case 3:
 						SpectatorCamFindPlayer(SparkSettings.instance.followPlayerName);
+						StartAutoFollowTimer(); // Start timer when manually switching to this mode
 						break;
 					case 4:
+						StopAutoFollowTimer();
 						FollowDischolder(null, SparkSettings.instance.discHolderFollowCamMode == 1, SparkSettings.instance.discHolderFollowRestrictTeam);
 						break;
 				}
@@ -92,7 +146,7 @@ namespace Spark
 			}
 		}
 
-		public static void SpectatorCamFindPlayer(string playerName = null, CameraMode? mode = null)
+		public static void SpectatorCamFindPlayer(string playerName = null, CameraMode? mode = null, bool isAutoFollow = false)
 		{
 			if (Program.lastFrame == null) return;
 
@@ -100,7 +154,10 @@ namespace Spark
 
 			if (Program.lastFrame.GetPlayer(playerName) == null)
 			{
-				LogRow(LogType.File, Program.lastFrame.sessionid, "Requested follow player not in the game.");
+				if (!isAutoFollow) // Only log if this wasn't an automatic attempt
+				{
+					LogRow(LogType.File, Program.lastFrame.sessionid, "Requested follow player not in the game.");
+				}
 				return;
 			}
 
@@ -118,7 +175,10 @@ namespace Spark
 						SetCameraMode(CameraMode.pov, playerCameraIndices[playerName]);
 						await Task.Delay(50);
 						(Player minPlayer, float dist) = await CheckNearestPlayer();
-						LoggerEvents.Log(Program.lastFrame, $"Initial player camera distance: {dist:N3} m.  Name: {minPlayer.name}");
+						if (!isAutoFollow)
+						{
+							LoggerEvents.Log(Program.lastFrame, $"Initial player camera distance: {dist:N3} m.  Name: {minPlayer.name}");
+						}
 						found = minPlayer.name == playerName;
 						foundIndex = playerCameraIndices[playerName];
 					}
@@ -136,7 +196,10 @@ namespace Spark
 							await Task.Delay(50);
 
 							(Player minPlayer, float dist) = await CheckNearestPlayer();
-							LoggerEvents.Log(Program.lastFrame, $"Player {i} camera distance: {dist:N3} m.  Name: {minPlayer.name}");
+							if (!isAutoFollow)
+							{
+								LoggerEvents.Log(Program.lastFrame, $"Player {i} camera distance: {dist:N3} m.  Name: {minPlayer.name}");
+							}
 							found = minPlayer.name == playerName;
 							playerCameraIndices[minPlayer.name] = i;
 
@@ -153,7 +216,10 @@ namespace Spark
 
 					if (found)
 					{
-						LogRow(LogType.File, Program.lastFrame.sessionid, "Correct player found.");
+						if (!isAutoFollow)
+						{
+							LogRow(LogType.File, Program.lastFrame.sessionid, "Correct player found.");
+						}
 						if (mode != null)
 						{
 							SetCameraMode((CameraMode)mode, foundIndex);
@@ -173,7 +239,7 @@ namespace Spark
 							}
 						}
 					}
-					else
+					else if (!isAutoFollow) // Only log failure if this wasn't an automatic attempt
 					{
 						LogRow(LogType.File, Program.lastFrame.sessionid,
 							"Failed to find player, switching to auto instead.");
@@ -184,7 +250,10 @@ namespace Spark
 			}
 			catch (Exception ex)
 			{
-				LogRow(LogType.Error, $"Error with finding player camera to follow.\n{ex}");
+				if (!isAutoFollow) // Only log errors if this wasn't an automatic attempt
+				{
+					LogRow(LogType.Error, $"Error with finding player camera to follow.\n{ex}");
+				}
 			}
 		}
 
