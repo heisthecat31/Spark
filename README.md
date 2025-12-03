@@ -1,6 +1,11 @@
 # Spark
-Download and features list:  
-https://ignitevr.gg/spark
+Modified fork of Spark with extra features and bug fixes, new features include
+- Discord Login Fix
+- Server Browser Tab For Spectators
+- TTS No Longer Requires Discord Login
+- Auto Follow User Has Been Reworked
+- Changed Spark Link To Echo Taxi Links
+- Removed Rumble
   
 Installation instructions:  
 https://echopedia.gg/wiki/Spark
