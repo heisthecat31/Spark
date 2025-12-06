@@ -330,6 +330,8 @@
 									<RowDefinition Height="*"/>
 									<RowDefinition Height="*"/>
 								</Grid.RowDefinitions>
+
+								<!-- Existing controls in rows 0 and 1 remain the same -->
 								<Label x:Name="label1" Content="{x:Static p:Resources.Speech_Speed}" />
 								<ComboBox Width="146" HorizontalAlignment="Left"
 										  SelectedIndex="{Binding SpeechSpeed}"
@@ -347,17 +349,12 @@
 									<ComboBoxItem Content="{x:Static p:Resources.Female}" />
 								</ComboBox>
 								<CheckBox Grid.Row="1" Grid.Column="2"  Content="Use Wavenet Voices" Margin="4,-15,4,0" IsChecked="{l:SettingBinding useWavenetVoices}" />
-								<!-- <Label Content="{x:Static p:Resources.Language}" Grid.Column="2" /> -->
-								<!-- <ComboBox Width="146" HorizontalAlignment="Left" -->
-								<!--                                   SelectedIndex="{l:SettingBinding ttsLanguage}" -->
-								<!--                                   Margin="0,0,0,8" Grid.Column="2" Grid.Row="1"> -->
-								<!-- 	<ComboBoxItem Content="English" /> -->
-								<!-- 	<ComboBoxItem Content="日本語" /> -->
-								<!-- </ComboBox> -->
-								
+
+								<!-- Row 2 buttons - MODIFIED -->
 								<Button Grid.Row="2" Grid.Column="0" Margin="0, 2" Click="ClearTTSCacheButton" Content="{x:Static p:Resources.Clear_TTS_Cache}"/>
 								<Button Grid.Row="2" Grid.Column="1" Margin="0, 2" Click="OpenTTSCacheButton" Content="{x:Static p:Resources.Open_TTS_Cache_Folder}"/>
-								<Button Grid.Row="2" Grid.Column="2" Margin="0, 2" Click="PlayTestSound" Content="{x:Static p:Resources.Play_Test_Sound}"/>
+								<!-- New button added here -->
+								<Button Grid.Row="2" Grid.Column="2" Margin="0, 2" Click="DownloadTTSCacheFromTTS" Content="Update TTS Cache"/>
 							</Grid>
 							<CheckBox Content="{x:Static p:Resources.Server_Location}" Margin="4,10,4,0"
 										  IsChecked="{Binding ServerLocation}" />
@@ -421,6 +418,10 @@
 
 			<TabItem Header="{x:Static p:Resources.Clips}" Padding="8,6,8,6">
 				<l:ClipsSettings></l:ClipsSettings>
+			</TabItem>
+
+			<TabItem Header="Update Spark" Padding="8,6,8,6">
+				<l:UpdateSparkControl/>
 			</TabItem>
 
 			<!--<TabItem Header="{x:Static p:Resources.NVIDIAHighlights}" Padding="8,6,8,6">
