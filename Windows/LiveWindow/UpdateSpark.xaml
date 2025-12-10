@@ -6,16 +6,18 @@
              xmlns:local="clr-namespace:Spark"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="600">
+    
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="10,10,10,10">
-            <Label Content="Update Spark" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+            <Label Content="Update Spark" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
             
-            <TextBlock TextWrapping="Wrap" Margin="0,0,0,15">
+            <TextBlock TextWrapping="Wrap" Margin="0,0,0,15" FontSize="14">
                 Check for updates and automatically download and install the latest version of Spark.
             </TextBlock>
             
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -27,52 +29,72 @@
                 </Grid.ColumnDefinitions>
                 
                 <!-- Current Version -->
-                <Label Content="Current Version:" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,10,10"/>
-                <TextBlock x:Name="CurrentVersionText" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,10" FontWeight="Bold"/>
+                <Label Content="Current Version:" Grid.Row="0" Grid.Column="0" 
+                       HorizontalAlignment="Left" Margin="0,0,10,10"/>
+                <TextBlock x:Name="CurrentVersionText" Grid.Row="0" Grid.Column="1" 
+                         VerticalAlignment="Center" Margin="0,0,0,10" 
+                         FontWeight="Bold" FontSize="14"/>
                 
                 <!-- Latest Version -->
-                <Label Content="Latest Version:" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,10,10"/>
-                <TextBlock x:Name="LatestVersionText" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,10" FontWeight="Bold"/>
+                <Label Content="Latest Version:" Grid.Row="1" Grid.Column="0" 
+                       HorizontalAlignment="Left" Margin="0,0,10,10"/>
+                <TextBlock x:Name="LatestVersionText" Grid.Row="1" Grid.Column="1" 
+                         VerticalAlignment="Center" Margin="0,0,0,10" 
+                         FontWeight="Bold" FontSize="14"/>
+                
+                <!-- Theme Selector Dropdown -->
+                <Label Content="Theme:" Grid.Row="2" Grid.Column="0" 
+                       HorizontalAlignment="Left" Margin="0,0,10,10"/>
+                <ComboBox x:Name="ColorVersionDropdown" Grid.Row="2" Grid.Column="1" 
+                         VerticalAlignment="Center" Margin="0,0,0,10" Height="28"/>
                 
                 <!-- Update Status -->
-                <Label Content="Status:" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,10,10"/>
-                <TextBlock x:Name="StatusText" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,10"/>
+                <Label Content="Status:" Grid.Row="3" Grid.Column="0" 
+                       HorizontalAlignment="Left" Margin="0,0,10,10"/>
+                <TextBlock x:Name="StatusText" Grid.Row="3" Grid.Column="1" 
+                         VerticalAlignment="Center" Margin="0,0,0,10"/>
                 
                 <!-- Progress Bar -->
-                <ProgressBar x:Name="UpdateProgressBar" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" 
-                           Height="20" Margin="0,0,0,20" Minimum="0" Maximum="100" Value="0" Visibility="Collapsed"/>
+                <ProgressBar x:Name="UpdateProgressBar" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" 
+                           Height="22" Margin="0,0,0,20" Minimum="0" Maximum="100" Value="0" 
+                           Visibility="Collapsed"/>
             </Grid>
             
             <!-- Update Buttons -->
             <StackPanel Orientation="Horizontal" Margin="0,10,0,20">
-                <Button x:Name="CheckUpdateButton" Content="Check for Updates" Width="150" Height="30" 
-                        Margin="0,0,10,0" Click="CheckUpdateButton_Click"/>
-                <Button x:Name="DownloadUpdateButton" Content="Download and Install Update" Width="180" Height="30" 
-                        Margin="0,0,10,0" Click="DownloadUpdateButton_Click" IsEnabled="False"/>
-                <Button x:Name="OpenTempFolderButton" Content="Open Temp Folder" Width="120" Height="30" 
-                        Click="OpenTempFolderButton_Click"/>
+                <Button x:Name="CheckUpdateButton" Content="Check for Updates" Width="160" Height="32" 
+                        Margin="0,0,12,0" Click="CheckUpdateButton_Click"
+                        FontWeight="SemiBold"/>
+                <Button x:Name="DownloadUpdateButton" Content="Download and Install Update" Width="190" Height="32" 
+                        Margin="0,0,12,0" Click="DownloadUpdateButton_Click" IsEnabled="False"
+                        FontWeight="SemiBold"/>
+                <Button x:Name="OpenTempFolderButton" Content="Open Temp Folder" Width="130" Height="32" 
+                        Click="OpenTempFolderButton_Click"
+                        FontWeight="SemiBold"/>
             </StackPanel>
             
             <!-- TTS Cache Section -->
-            <Separator Margin="0,0,0,10"/>
-            <Label Content="TTS Cache Update" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+            <Separator Margin="0,0,0,10" Height="1"/>
+            <Label Content="TTS Cache Update" FontSize="16" FontWeight="Bold" 
+                   Margin="0,0,0,10"/>
             
-            <TextBlock TextWrapping="Wrap" Margin="0,0,0,15">
+            <TextBlock TextWrapping="Wrap" Margin="0,0,0,15" FontSize="14">
                 Download the latest TTS cache to avoid generating speech files on first use. 
                 This can reduce loading times for TTS features.
             </TextBlock>
             
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <Button x:Name="DownloadTTSCacheButton" Content="Download TTS Cache" Width="150" Height="30" 
-                        Margin="0,0,10,0" Click="DownloadTTSCacheButton_Click"/>
+                <Button x:Name="DownloadTTSCacheButton" Content="Download TTS Cache" Width="160" Height="32" 
+                        Margin="0,0,12,0" Click="DownloadTTSCacheButton_Click"
+                        FontWeight="SemiBold"/>
                 <TextBlock x:Name="TTSCacheStatus" VerticalAlignment="Center"/>
             </StackPanel>
             
             <!-- Update Log -->
-            <Expander Header="Update Details" Margin="0,10,0,0">
-                <TextBox x:Name="UpdateDetailsText" IsReadOnly="True" Height="150" 
+            <Expander Header="Update Details" Margin="0,10,0,0" FontWeight="SemiBold">
+                <TextBox x:Name="UpdateDetailsText" IsReadOnly="True" Height="160" 
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                         TextWrapping="Wrap" FontFamily="Consolas" FontSize="10"/>
+                         TextWrapping="Wrap" FontFamily="Consolas" FontSize="11"/>
             </Expander>
         </StackPanel>
     </ScrollViewer>
