@@ -1,0 +1,187 @@
+<UserControl x:Class="Spark.UpdateSparkControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Spark"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="600"
+             Background="#FFc32b61">
+    
+    <UserControl.Resources>
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="#FFCCCCCC"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FFCCCCCC"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#edf85592"/>
+            <Setter Property="Foreground" Value="#FFCCCCCC"/>
+            <Setter Property="BorderBrush" Value="#FFc32b61"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"
+                                            Margin="5,2"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FFffaac9"/>
+                                <Setter Property="Foreground" Value="#FF000000"/>
+                                <Setter Property="BorderBrush" Value="#FFea6192"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#FFc32b61"/>
+                                <Setter Property="Foreground" Value="#FFCCCCCC"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#FFb85a7d"/>
+                                <Setter Property="Foreground" Value="#FF888888"/>
+                                <Setter Property="BorderBrush" Value="#FF9a4d6e"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="Expander">
+            <Setter Property="Background" Value="#FFea6192"/>
+            <Setter Property="Foreground" Value="#c0c0c0ff"/>
+            <Setter Property="BorderBrush" Value="#FFc32b61"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#FFea6192"/>
+            <Setter Property="Foreground" Value="#c0c0c0ff"/>
+            <Setter Property="BorderBrush" Value="#FFc32b61"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CaretBrush" Value="#FFffaac9"/>
+        </Style>
+        <Style TargetType="ProgressBar">
+            <Setter Property="Background" Value="#FFea6192"/>
+            <Setter Property="BorderBrush" Value="#FFc32b61"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#e6e698c9"/>
+            <Setter Property="Height" Value="20"/>
+        </Style>
+        <Style TargetType="Separator">
+            <Setter Property="Background" Value="#c0c0c0ff"/>
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="#FFea6192"/>
+            <Setter Property="Foreground" Value="#c0c0c0ff"/>
+            <Setter Property="BorderBrush" Value="#FFc32b61"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="25"/>
+        </Style>
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#FFea6192"/>
+            <Setter Property="Foreground" Value="#c0c0c0ff"/>
+            <Setter Property="BorderBrush" Value="#FFc32b61"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#FFc32b61">
+        <StackPanel Margin="10,10,10,10" Background="#FFc32b61">
+            <Label Content="Update Spark" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"
+                   Foreground="#c0c0c0ff"/>
+            
+            <TextBlock TextWrapping="Wrap" Margin="0,0,0,15" Foreground="#FFCCCCCC">
+                Check for updates and automatically download and install the latest version of Spark.
+            </TextBlock>
+            
+            <Grid Background="#FFc32b61">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Current Version -->
+                <Label Content="Current Version:" Grid.Row="0" Grid.Column="0" 
+                       HorizontalAlignment="Left" Margin="0,0,10,10" Foreground="#FFCCCCCC"/>
+                <TextBlock x:Name="CurrentVersionText" Grid.Row="0" Grid.Column="1" 
+                         VerticalAlignment="Center" Margin="0,0,0,10" 
+                         FontWeight="Bold" Foreground="#FFffaac9"/>
+                
+                <!-- Latest Version -->
+                <Label Content="Latest Version:" Grid.Row="1" Grid.Column="0" 
+                       HorizontalAlignment="Left" Margin="0,0,10,10" Foreground="#FFCCCCCC"/>
+                <TextBlock x:Name="LatestVersionText" Grid.Row="1" Grid.Column="1" 
+                         VerticalAlignment="Center" Margin="0,0,0,10" 
+                         FontWeight="Bold" Foreground="#FFffaac9"/>
+                
+                <!-- Color Theme Selection -->
+                <Label Content="Theme:" Grid.Row="2" Grid.Column="0" 
+                       HorizontalAlignment="Left" Margin="0,0,10,10" Foreground="#FFCCCCCC"/>
+                <ComboBox x:Name="ColorVersionDropdown" Grid.Row="2" Grid.Column="1" 
+                         VerticalAlignment="Center" Margin="0,0,0,10"/>
+                
+                <!-- Update Status -->
+                <Label Content="Status:" Grid.Row="3" Grid.Column="0" 
+                       HorizontalAlignment="Left" Margin="0,0,10,10" Foreground="#FFCCCCCC"/>
+                <TextBlock x:Name="StatusText" Grid.Row="3" Grid.Column="1" 
+                         VerticalAlignment="Center" Margin="0,0,0,10" Foreground="#FFCCCCCC"/>
+                
+                <!-- Progress Bar -->
+                <ProgressBar x:Name="UpdateProgressBar" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" 
+                           Height="20" Margin="0,0,0,20" Minimum="0" Maximum="100" Value="0" 
+                           Visibility="Collapsed" Background="#FFea6192" Foreground="#FFffaac9"/>
+            </Grid>
+            
+            <!-- Update Buttons -->
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,20" Background="#FFc32b61">
+                <Button x:Name="CheckUpdateButton" Content="Check for Updates" Width="150" Height="30" 
+                        Margin="0,0,10,0" Click="CheckUpdateButton_Click"
+                        Background="#FFea6192" Foreground="#FFCCCCCC" BorderBrush="#FFc32b61"/>
+                <Button x:Name="DownloadUpdateButton" Content="Download and Install Update" Width="180" Height="30" 
+                        Margin="0,0,10,0" Click="DownloadUpdateButton_Click" IsEnabled="False"
+                        Background="#FFea6192" Foreground="#FFCCCCCC" BorderBrush="#FFc32b61"/>
+                <Button x:Name="OpenTempFolderButton" Content="Open Temp Folder" Width="120" Height="30" 
+                        Click="OpenTempFolderButton_Click"
+                        Background="#FFea6192" Foreground="#FFCCCCCC" BorderBrush="#FFc32b61"/>
+            </StackPanel>
+            
+            <!-- TTS Cache Section -->
+            <Separator Margin="0,0,0,10" Background="#FFCCCCCC"/>
+            <Label Content="TTS Cache Update" FontSize="14" FontWeight="Bold" 
+                   Margin="0,0,0,10" Foreground="#FFCCCCCC"/>
+            
+            <TextBlock TextWrapping="Wrap" Margin="0,0,0,15" Foreground="#FFCCCCCC">
+                Download the latest TTS cache to avoid generating speech files on first use. 
+                This can reduce loading times for TTS features.
+            </TextBlock>
+            
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10" Background="#FFc32b61">
+                <Button x:Name="DownloadTTSCacheButton" Content="Download TTS Cache" Width="150" Height="30" 
+                        Margin="0,0,10,0" Click="DownloadTTSCacheButton_Click"
+                        Background="#FFea6192" Foreground="#FFCCCCCC" BorderBrush="#FFc32b61"/>
+                <TextBlock x:Name="TTSCacheStatus" VerticalAlignment="Center" Foreground="#FFCCCCCC"/>
+            </StackPanel>
+            
+            <!-- Update Log -->
+            <Expander Header="Update Details" Margin="0,10,0,0"
+                      Background="#FFea6192" Foreground="#FFCCCCCC" BorderBrush="#FFc32b61">
+                <TextBox x:Name="UpdateDetailsText" IsReadOnly="True" Height="150" 
+                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                         TextWrapping="Wrap" FontFamily="Consolas" FontSize="10"
+                         Background="#FFc32b61" Foreground="#FFCCCCCC" BorderBrush="#FFea6192"/>
+            </Expander>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

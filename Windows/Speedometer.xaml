@@ -1,0 +1,22 @@
+﻿<Window x:Class="Spark.Speedometer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Spark"
+        xmlns:properties="clr-namespace:Spark.Properties"
+        mc:Ignorable="d"
+        Icon="/img/ignite_logo_64.png"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        Title="{x:Static properties:Resources.Speedometer}" 
+        Height="300" Width="300">
+    <Grid x:Name="Grid">
+        <TextBlock x:Name="CurrentSpeedText" FontSize="30" Margin="30,60,30,60" FontWeight="Bold" TextAlignment="Center"></TextBlock>
+        <ComboBox x:Name="GameVersionDropdown" SelectedIndex="{Binding GameVersionDropdownValue}"
+                  VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="10,10,10,10" Visibility="Visible">
+            <ComboBoxItem Content="Echo VR" />
+            <ComboBoxItem Content="Lone Echo 1" />
+            <ComboBoxItem Content="Lone Echo 2" />
+        </ComboBox>
+    </Grid>
+</Window>
