@@ -1,0 +1,34 @@
+﻿<ResourceDictionary x:Class="TheRThemes.ColourfulDarkTheme_Red"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+
+    <!-- Colourful theme  Colours -->
+
+    <SolidColorBrush x:Key="ControlPrimaryDarkerBackground" Color="#FFD00606" />
+    <SolidColorBrush x:Key="ControlPrimaryDarkerBorderBrush" Color="#FFE80202" />
+    <SolidColorBrush x:Key="ControlPrimaryDefaultBackground" Color="#FFE82020" />
+    <SolidColorBrush x:Key="ControlPrimaryDefaultBorderBrush" Color="#FFE63333" />
+    <SolidColorBrush x:Key="ControlPrimaryBrightDefaultBackground" Color="#FFE14C4C" />
+    <SolidColorBrush x:Key="ControlPrimaryBrightDefaultBorderBrush" Color="#FFD67676" />
+    <SolidColorBrush x:Key="ControlPrimaryDisabledBackground" Color="#FFF50505" />
+    <SolidColorBrush x:Key="ControlPrimaryDisabledBorderBrush" Color="#FFE61E1E" />
+    <SolidColorBrush x:Key="ControlPrimaryMouseOverBackground" Color="#FF662C2C" />
+    <SolidColorBrush x:Key="ControlPrimaryMouseOverBorderBrush" Color="#FFE23C3C" />
+    <SolidColorBrush x:Key="ControlPrimarySelectedBackground" Color="#FF4F2E2E" />
+    <SolidColorBrush x:Key="ControlPrimarySelectedBorderBrush" Color="#FFE73232" />
+    <SolidColorBrush x:Key="ControlPrimarySelectedMouseOverBackground" Color="#FF5D3737" />
+    <SolidColorBrush x:Key="ControlPrimarySelectedMouseOverBorderBrush" Color="#FFF40606" />
+    <SolidColorBrush x:Key="ControlPrimaryCaretSelectionBackground" Color="#FFE63333" />
+    <SolidColorBrush x:Key="ControlPrimaryCaretBackground" Color="#FFF41515" />
+    <SolidColorBrush x:Key="ControlPrimaryGlythColour" Color="#FFF41010" />
+    <SolidColorBrush x:Key="ControlPrimaryMouseOverGlythColour" Color="#FFED2626" />
+    <SolidColorBrush x:Key="ControlPrimarySelectedGlythColour" Color="#FFDB5C5C" />
+    <SolidColorBrush x:Key="ControlPrimarySelectedMouseOverGlythColour" Color="#FFE24646" />
+    <SolidColorBrush x:Key="ControlPrimaryDisabledGlythColour" Color="#FF420101" />
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ColourfulDarkTheme_base.xaml"></ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+
+</ResourceDictionary>
