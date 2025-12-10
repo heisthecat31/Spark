@@ -8,7 +8,7 @@ Modified fork of Spark with extra features and bug fixes, new features include
 - Removed Rumble
 - Added PlayerStats And Leaderboard
 - Ability To Update In Spark
-- Different Colour Themes
+- Different Colour Themes (see below)
   
 Installation instructions:  
 https://echopedia.gg/wiki/Spark
