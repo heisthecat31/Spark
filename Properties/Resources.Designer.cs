@@ -4087,11 +4087,10 @@ namespace Spark.Properties {
         /// <summary>
         ///   Looks up a localized string similar to TTS only works when logged in with Discord!
         ///
-        ///(top left of main window).
         /// </summary>
-        public static string TTS_only_works_when_logged_in_with_Discord_ {
+        public static string TTS_works_whenever_i_want_it_too_ {
             get {
-                return ResourceManager.GetString("TTS only works when logged in with Discord!", resourceCulture);
+                return ResourceManager.GetString("TTS works whenever i want it too", resourceCulture);
             }
         }
         
