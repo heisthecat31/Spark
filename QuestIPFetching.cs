@@ -164,20 +164,36 @@ namespace Spark
 			}
 		}
 
-		public static async void PingIPList(List<IPAddress> IPs, int threadID)
+		public static async Task PingIPList(List<IPAddress> IPs, int threadID)
 		{
-			IEnumerable<Task<PingReply>> tasks = IPs.Select(ip => new Ping().SendPingAsync(ip, 4000));
-			PingReply[] results = await Task.WhenAll(tasks);
-			switch (threadID)
+			try
 			{
-				case 1:
-					IPPingThread1Done = true;
-					break;
-				case 2:
-					IPPingThread2Done = true;
-					break;
-				default:
-					break;
+				IEnumerable<Task<PingReply>> tasks = IPs.Select(async ip =>
+				{
+					using Ping ping = new Ping();
+					return await ping.SendPingAsync(ip, 4000);
+				});
+				await Task.WhenAll(tasks);
+			}
+			catch (Exception ex)
+			{
+				// unreachable hosts are normal on a subnet sweep, the ARP table is what actually finds the Quest
+				Logger.LogRow(Logger.LogType.Error, $"Ping sweep {threadID} failed.\n{ex}");
+			}
+			finally
+			{
+				// must run even on failure, the search loop waits on these flags
+				switch (threadID)
+				{
+					case 1:
+						IPPingThread1Done = true;
+						break;
+					case 2:
+						IPPingThread2Done = true;
+						break;
+					default:
+						break;
+				}
 			}
 		}
 
@@ -210,12 +226,10 @@ namespace Spark
 					return destIp;
 				})
 				.ToList();
-			IPSearchthread1 = new Thread(() => PingIPList(pingReplyTasks, 1));
-			IPSearchthread2 = new Thread(() => PingIPList(pingReplyTasks2, 2));
 			IPPingThread1Done = false;
 			IPPingThread2Done = false;
-			IPSearchthread1.Start();
-			IPSearchthread2.Start();
+			_ = PingIPList(pingReplyTasks, 1);
+			_ = PingIPList(pingReplyTasks2, 2);
 		}
 
 

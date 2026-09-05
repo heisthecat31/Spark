@@ -133,6 +133,13 @@ namespace Spark
 		/// </summary>
 		public static float StatsIntervalMs => statsDeltaTimes[SparkSettings.instance.lowFrequencyMode ? 2 : 0];
 
+		/// <summary>
+		/// Actual measured time between fetches. StatsIntervalMs is only the target,
+		/// the OS timer wakes on ~15.6ms ticks so the rate is usually lower and jitters.
+		/// Use this, not StatsIntervalMs, to convert between sample counts and seconds
+		/// </summary>
+		public static float MeasuredIntervalMs { get; private set; } = 16.6666666f;
+
 		// 60, 30 or 15 hz main fetch speed
 		private static readonly List<float> statsDeltaTimes = new List<float> { 16.6666666f, 33.3333333f, 66.6666666f };
 
@@ -982,8 +989,18 @@ namespace Spark
 			}
 
 			DateTime lastFetch = DateTime.UtcNow;
+			Stopwatch loopSw = Stopwatch.StartNew();
 			while (running)
 			{
+				// measure what the loop did
+				// bounds reject the first iteration and the long waits during disconnect backoff
+				double loopMs = loopSw.Elapsed.TotalMilliseconds;
+				loopSw.Restart();
+				if (loopMs > 1 && loopMs < 200)
+				{
+					MeasuredIntervalMs = MeasuredIntervalMs * .9f + (float)loopMs * .1f;
+				}
+
 				fetchSw.Restart();
 
 				frameIndex++;
@@ -1116,7 +1133,7 @@ namespace Spark
 				int delay = Math.Clamp((int)(StatsIntervalMs - fetchSw.ElapsedMilliseconds - 3), 0, 1000);
 				if (delay > 0)
 				{
-					Thread.Sleep(delay);
+					await Task.Delay(delay);
 				}
 			}
 		}
