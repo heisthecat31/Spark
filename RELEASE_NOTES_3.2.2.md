@@ -16,7 +16,7 @@ Your PC's music, playing out of Echo VR's own in-game speakers.
   - pause Echo's own music
   - all of Windows or one app as the source
 - **Speakers built in** for the Arena, Dyson, Surge, Combustion and Fission. The lobby uses its own speakers, and on other maps the music plays beside you.
-- **Place your own speakers** in game: stand where you want one and press **1**, and press **2** to remove the last one. **Ctrl+Alt+M** turns the music on and off.
+- **Ctrl+Alt+M** turns the music on and off in game.
 - **Matches your Spark theme,** including live theme changes.
 
 ### Map testing invite
