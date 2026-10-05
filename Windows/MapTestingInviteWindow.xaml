@@ -1,0 +1,194 @@
+<Window x:Class="Spark.MapTestingInviteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="You're invited: Echo VR map testing"
+        Width="540" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="True"
+        Icon="/img/ignite_logo.ico" FontFamily="Segoe UI"
+        MouseLeftButtonDown="DragWindow" Loaded="OnLoaded" Opacity="0">
+    <!-- Every colour comes from the user's Spark theme (ThemesController), so the invite matches it. -->
+    <Window.Resources>
+        <!-- a soft highlight laid over accent fills, so they read as lit rather than flat -->
+        <LinearGradientBrush x:Key="Sheen" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#2EFFFFFF" Offset="0"/>
+            <GradientStop Color="#00FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+
+        <Style x:Key="JoinButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource ControlAccentForeground}"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="glow" CornerRadius="14" Background="{DynamicResource ControlAccent}" Opacity="0.45">
+                                <Border.Effect>
+                                    <BlurEffect Radius="22"/>
+                                </Border.Effect>
+                            </Border>
+                            <Border CornerRadius="14" Background="{DynamicResource ControlAccent}">
+                                <Border CornerRadius="14" Background="{StaticResource Sheen}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                            <Border x:Name="shine" CornerRadius="14" Background="White" Opacity="0" IsHitTestVisible="False"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="shine" Property="Opacity" Value="0.10"/>
+                                <Setter TargetName="glow" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="shine" Property="Opacity" Value="0.18"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- quiet buttons: "Maybe later" and the close cross -->
+        <Style x:Key="QuietButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextDim}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                                <Setter TargetName="bg" Property="Background" Value="{DynamicResource SurfaceRaised}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- a feature icon: the glyph on a faint accent tile -->
+        <Style x:Key="FeatureIcon" TargetType="ContentControl">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContentControl">
+                        <Grid>
+                            <Border CornerRadius="12" Background="{DynamicResource ControlAccent}" Opacity="0.14"/>
+                            <Border CornerRadius="12" BorderBrush="{DynamicResource ControlAccent}" BorderThickness="1" Opacity="0.35"/>
+                            <TextBlock Text="{TemplateBinding Content}" FontFamily="Segoe MDL2 Assets" FontSize="17"
+                                       Foreground="{DynamicResource ControlAccent}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <!-- the margin leaves room for the shadow -->
+    <Grid Margin="24">
+        <Grid.RenderTransform>
+            <TranslateTransform x:Name="slide" Y="18"/>
+        </Grid.RenderTransform>
+
+        <Border CornerRadius="26" BorderThickness="1" BorderBrush="{DynamicResource SurfaceBorder}"
+                Background="{DynamicResource SurfaceCard}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="34" ShadowDepth="0" Opacity="0.7" Color="#000000"/>
+            </Border.Effect>
+        </Border>
+
+        <!-- accent glow in the top corner, clipped to the card -->
+        <Grid IsHitTestVisible="False">
+            <Grid.Clip>
+                <RectangleGeometry x:Name="cardClip" RadiusX="26" RadiusY="26"/>
+            </Grid.Clip>
+            <Ellipse Width="340" Height="340" Margin="0,-190,-150,0" HorizontalAlignment="Right" VerticalAlignment="Top"
+                     Opacity="0.30" Fill="{DynamicResource ControlAccent}">
+                <Ellipse.Effect>
+                    <BlurEffect Radius="90"/>
+                </Ellipse.Effect>
+            </Ellipse>
+        </Grid>
+
+        <StackPanel Margin="36,30,36,26" SizeChanged="CardSizeChanged">
+            <Grid>
+                <Border HorizontalAlignment="Left" CornerRadius="10" Padding="11,5" Background="{DynamicResource ControlAccent}">
+                    <TextBlock Text="YOU'RE INVITED" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource ControlAccentForeground}"/>
+                </Border>
+                <Button Style="{StaticResource QuietButton}" HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Width="34" Height="34" Click="Close_Click" ToolTip="Close">
+                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="13"/>
+                </Button>
+            </Grid>
+
+            <TextBlock Margin="0,22,0,0" FontSize="30" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}"
+                       TextWrapping="Wrap" LineHeight="36">
+                Help shape the next<LineBreak/>Echo VR maps
+            </TextBlock>
+            <TextBlock Margin="0,12,0,0" FontSize="14.5" Foreground="{DynamicResource TextDim}" TextWrapping="Wrap" LineHeight="22"
+                       Text="Join our map testing Discord. Install custom maps, jump into them online with other players, and try new stuff before anyone else."/>
+
+            <StackPanel Margin="0,24,0,0">
+                <Grid Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ContentControl Style="{StaticResource FeatureIcon}" Content="&#xE896;"/>
+                    <StackPanel Grid.Column="1" Margin="14,1,0,0">
+                        <TextBlock Text="Install custom maps" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}"/>
+                        <TextBlock Text="New arenas and combat maps, ready to drop into Echo." FontSize="13" Foreground="{DynamicResource TextDim}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+                <Grid Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ContentControl Style="{StaticResource FeatureIcon}" Content="&#xE716;"/>
+                    <StackPanel Grid.Column="1" Margin="14,1,0,0">
+                        <TextBlock Text="Play them online together" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}"/>
+                        <TextBlock Text="Test sessions with other players, not just solo walkthroughs." FontSize="13" Foreground="{DynamicResource TextDim}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ContentControl Style="{StaticResource FeatureIcon}" Content="&#xE734;"/>
+                    <StackPanel Grid.Column="1" Margin="14,1,0,0">
+                        <TextBlock Text="Try new stuff first" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}"/>
+                        <TextBlock Text="Help find what works, and shape what comes next." FontSize="13" Foreground="{DynamicResource TextDim}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+
+            <Border Margin="0,22,0,0" HorizontalAlignment="Left" CornerRadius="9" Padding="10,5"
+                    Background="{DynamicResource SurfaceRaised}" BorderBrush="{DynamicResource SurfaceBorder}" BorderThickness="1">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource TextDim}" VerticalAlignment="Center"/>
+                    <TextBlock Text="  Echo VR on PC only" FontSize="12" Foreground="{DynamicResource TextDim}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <Button Style="{StaticResource JoinButton}" Margin="0,22,0,0" Height="54" Click="Join_Click">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Join the Discord" VerticalAlignment="Center"/>
+                    <TextBlock Text="  &#xE72A;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+            <Button Style="{StaticResource QuietButton}" Margin="0,10,0,0" Padding="16,8" HorizontalAlignment="Center"
+                    FontSize="13.5" Content="Maybe later" Click="Close_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1574,103 +1574,29 @@
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/img/speaker.png" Height="14" VerticalAlignment="Center"/>
-                            <Label Content="Speaker" Padding="4,0,0,0" VerticalAlignment="Center" Style="{StaticResource TabHeaderLabel}"/>
+                            <Label Content="Music" Padding="4,0,0,0" VerticalAlignment="Center" Style="{StaticResource TabHeaderLabel}"/>
                         </StackPanel>
                     </TabItem.Header>
                     <Grid Background="{DynamicResource ControlDarkerBackground}">
-                        <Button x:Name="installEchoSpeakerSystem" Content="{x:Static p:Resources.Install_Echo_Speaker_System}" Width="183" Margin="0,10,10,0" HorizontalAlignment="Right" Click="installEchoSpeakerSystem_Click" VerticalAlignment="Top" Height="30" Background="{DynamicResource ControlDefaultBackground}" Foreground="{DynamicResource ControlDefaultForeground}" BorderBrush="{DynamicResource ControlDarkerBorderBrush}"/>
-                        <Button x:Name="updateEchoSpeakerSystem" Content="{x:Static p:Resources.Update_Echo_Speaker_System}" Width="190" Margin="0,10,210,0" HorizontalAlignment="Right" Click="installEchoSpeakerSystem_Click" VerticalAlignment="Top" Height="30" Background="{DynamicResource ControlDefaultBackground}" Foreground="{DynamicResource ControlDefaultForeground}" BorderBrush="{DynamicResource ControlDarkerBorderBrush}"/>
-                        <Button x:Name="startStopEchoSpeakerSystem" Content="{x:Static p:Resources.Start_Echo_Speaker_System}" Width="183" Margin="0,10,10,0" HorizontalAlignment="Right" Click="startStopEchoSpeakerSystem_Click"  VerticalAlignment="Top" Height="30" Background="{DynamicResource ControlDefaultBackground}" Foreground="{DynamicResource ControlDefaultForeground}" BorderBrush="{DynamicResource ControlDarkerBorderBrush}"/>
-                        <Label x:Name="speakerSystemInstallLabel" Visibility="Hidden" Content="{x:Static p:Resources.Installing_Echo_Speaker_System}" Width="200" Margin="10,10,00,0" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="10" FontStyle="Italic"/>
-                        <!-- Shown while Echo Speaker System is not running. The embedded
-                             Unity window is a native child HWND and paints over this, but it
-                             is collapsed on start anyway so it cannot show through. -->
-                        <ScrollViewer x:Name="speakerSystemInfoPanel" Margin="0,50,0,0"
-                                      VerticalScrollBarVisibility="Auto"
-                                      Background="{DynamicResource ControlDarkerBackground}">
-                            <StackPanel Margin="28,20,28,28" MaxWidth="780" HorizontalAlignment="Left">
-
-                                <TextBlock Text="Echo Speaker System" FontSize="21" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimary}"/>
-                                <TextBlock Text="Your music, playing from speakers around the arena."
-                                           FontSize="13" Margin="0,3,0,16" TextWrapping="Wrap"
-                                           Foreground="{DynamicResource TextDim}"/>
-
-                                <Border Background="{DynamicResource SurfaceCard}" BorderThickness="1"
-                                        BorderBrush="{DynamicResource SurfaceBorder}" CornerRadius="6"
-                                        Padding="16,14,16,14" Margin="0,0,0,10">
-                                    <StackPanel>
-                                        <TextBlock Text="What it does" FontSize="13" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,6"/>
-                                        <TextBlock TextWrapping="Wrap" FontSize="12" LineHeight="18"
-                                                   Foreground="{DynamicResource TextDim}"
-                                                   Text="It takes the audio from any app on your PC and plays it through virtual speakers placed around the Echo Arena map. This is real positional audio, not a background track: the sound bounces off the arena geometry, moves as you move, and goes quiet and muffled when you drop into the spawn room or tunnel, the way a stadium PA would."/>
-                                    </StackPanel>
-                                </Border>
-
-                                <Border Background="{DynamicResource SurfaceCard}" BorderThickness="1"
-                                        BorderBrush="{DynamicResource SurfaceBorder}" CornerRadius="6"
-                                        Padding="16,14,16,14" Margin="0,0,0,10">
-                                    <StackPanel>
-                                        <TextBlock Text="Before you start" FontSize="13" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,8"/>
-                                        <Grid Margin="0,0,0,6">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="22"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="1." FontSize="12" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource TextFaint}"/>
-                                            <TextBlock Grid.Column="1" TextWrapping="Wrap" FontSize="12" LineHeight="18"
-                                                       Foreground="{DynamicResource TextDim}"
-                                                       Text="Install a virtual audio cable. VB-CABLE (free) or Virtual Audio Cable both work - Speaker System detects either, and if you have neither it names one and gives you the download link."/>
-                                        </Grid>
-                                        <Grid Margin="0,0,0,6">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="22"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="2." FontSize="12" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource TextFaint}"/>
-                                            <TextBlock Grid.Column="1" TextWrapping="Wrap" FontSize="12" LineHeight="18"
-                                                       Foreground="{DynamicResource TextDim}"
-                                                       Text="In Echo VR's in-game settings, set Enable API Access to Enabled. Without it Speaker System cannot tell where you are, and the audio will not move."/>
-                                        </Grid>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="22"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="3." FontSize="12" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource TextFaint}"/>
-                                            <TextBlock Grid.Column="1" TextWrapping="Wrap" FontSize="12" LineHeight="18"
-                                                       Foreground="{DynamicResource TextDim}"
-                                                       Text="Press Start Echo Speaker System above, then pick the app you want played through the speakers. It opens right here in this panel."/>
-                                        </Grid>
-                                    </StackPanel>
-                                </Border>
-
-                                <Border Background="{DynamicResource SurfaceCard}" BorderThickness="1"
-                                        BorderBrush="{DynamicResource SurfaceBorder}" CornerRadius="6"
-                                        Padding="16,14,16,14">
-                                    <StackPanel>
-                                        <TextBlock Text="Worth knowing" FontSize="13" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,6"/>
-                                        <TextBlock TextWrapping="Wrap" FontSize="12" LineHeight="18" Margin="0,0,0,5"
-                                                   Foreground="{DynamicResource TextDim}"
-                                                   Text="Custom goal horns only work when running through Spark. Drop your own GoalHorn.wav next to the Speaker System install and enable it in its settings."/>
-                                        <TextBlock TextWrapping="Wrap" FontSize="12" LineHeight="18" Margin="0,0,0,5"
-                                                   Foreground="{DynamicResource TextDim}"
-                                                   Text="On Quest you must run it from Spark, because Spark is what relays the API data over the network. You also need some way to hear your PC's audio while playing on the headset."/>
-                                        <TextBlock TextWrapping="Wrap" FontSize="12" LineHeight="18"
-                                                   Foreground="{DynamicResource TextFaint}"
-                                                   Text="Speaker System runs as its own app; Spark just hosts its window and feeds it match data."/>
-                                    </StackPanel>
-                                </Border>
-
-                            </StackPanel>
-                        </ScrollViewer>
-                        <ContentPresenter x:Name="speakerSystemPanel" Visibility="Visible" Margin="0,50,0,0" SizeChanged="speakerSystemPanel_Resize" IsVisibleChanged="speakerSystemPanel_IsVisibleChanged"/>
+                        <!-- Shown until EchoVRMusic is installed. After that, EchoVRMusicSetup.exe's own
+                             window (a native child of Spark's window) sits over speakerSystemPanel. -->
+                        <StackPanel x:Name="echoMusicInstallPanel" Visibility="Collapsed" MaxWidth="520"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <TextBlock Text="EchoVRMusic" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource TextPrimary}"/>
+                            <TextBlock Text="Your PC's music, playing from Echo VR's own speakers on every map. No virtual cable needed."
+                                       FontSize="13" Margin="0,6,0,22" TextWrapping="Wrap" TextAlignment="Center"
+                                       Foreground="{DynamicResource TextDim}"/>
+                            <Button x:Name="echoMusicInstallButton" Content="Install EchoVRMusic" Width="220" Height="38"
+                                    Click="echoMusicInstallButton_Click"
+                                    Background="{DynamicResource ControlDefaultBackground}" Foreground="{DynamicResource ControlDefaultForeground}"
+                                    BorderBrush="{DynamicResource ControlDarkerBorderBrush}"/>
+                            <TextBlock x:Name="echoMusicStatus" Margin="0,12,0,0" FontSize="12" HorizontalAlignment="Center"
+                                       TextWrapping="Wrap" TextAlignment="Center" Foreground="{DynamicResource TextDim}"/>
+                            <TextBlock x:Name="echoMusicFolderText" Margin="0,18,0,0" FontSize="11" HorizontalAlignment="Center"
+                                       TextWrapping="Wrap" TextAlignment="Center" Foreground="{DynamicResource TextFaint}"/>
+                        </StackPanel>
+                        <ContentPresenter x:Name="speakerSystemPanel" SizeChanged="speakerSystemPanel_Resize" IsVisibleChanged="speakerSystemPanel_IsVisibleChanged"/>
                     </Grid>
                 </TabItem>
                 

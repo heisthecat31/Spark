@@ -454,14 +454,12 @@ namespace Spark
         }
 
         /// <summary>
-        /// Finds the Speaker System window among the children of <paramref name="parent"/>.
+        /// Finds the EchoVRMusic window among the children of <paramref name="parent"/>.
         ///
-        /// Unity reparents itself into Spark because of -parentHWND, but the window does
-        /// not exist the moment WaitForInputIdle returns, and Spark's window has several
-        /// other native children (a Static, and WebView2's Chrome_* windows for the
-        /// Browser tab). The old code took whichever child enumerated first and stopped,
-        /// which picked the Static and repositioned that instead - leaving the Unity view
-        /// at its default 1280x720 off in the corner, and the Speaker panel black.
+        /// EchoVRMusicSetup.exe creates itself as a child of Spark because of --embed, but the
+        /// window doesn't exist the moment the process starts, and Spark's window has other
+        /// native children too (a Static, and WebView2's Chrome_* windows for the Browser tab),
+        /// so match the owning process and the window class.
         /// </summary>
         private IntPtr FindSpeakerSystemChild(IntPtr parent, int essPid)
         {
@@ -474,7 +472,7 @@ namespace Spark
 
                 StringBuilder cls = new StringBuilder(256);
                 GetClassName(hwnd, cls, cls.Capacity);
-                if (cls.ToString() != "UnityWndClass") return 1;
+                if (cls.ToString() != "EchoVRMusicSetup") return 1;
 
                 found = hwnd;
                 return 0;
@@ -490,7 +488,7 @@ namespace Spark
         }
 
         /// <summary>
-        /// Positions the embedded Unity window over the Speaker panel. Must run on the UI
+        /// Positions the embedded EchoVRMusic window over the Music panel. Must run on the UI
         /// thread - it reads WPF layout - and converts to physical pixels, because
         /// MoveWindow works in pixels while WPF reports device-independent units.
         /// </summary>
@@ -519,9 +517,7 @@ namespace Spark
         {
             if (!speakerSystemPanel.IsVisible || SpeakerSystemProcess == null || SpeakerSystemProcess.Handle.ToInt32() <= 0) return;
 
-            Point relativePoint = speakerSystemPanel.TransformToAncestor(this).Transform(new Point(0, 0));
-            MoveWindow(unityHWND, (int)relativePoint.X, (int)relativePoint.Y, (int)speakerSystemPanel.ActualWidth, (int)speakerSystemPanel.ActualHeight, true);
-            ActivateUnityWindow();
+            MoveSpeakerSystemWindow();
         }
 
         private void liveWindow_FormClosed(object sender, EventArgs e)
@@ -2815,223 +2811,186 @@ namespace Spark
         private void speakerSystemPanel_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (!speakerSystemPanel.IsVisible) return;
+            ShowEchoVRMusic();
+        }
 
-            // These depend only on what is installed, not on whether Speaker System is
-            // currently running. They used to sit below an early return that fired when
-            // the process was null, so the update button kept its XAML default (Visible)
-            // and showed even when the installed version was already current.
+        /// <summary>
+        /// The Music tab: EchoVRMusic's own window when it's installed, otherwise the offer to
+        /// install it into the Echo folder Spark already knows.
+        /// </summary>
+        private void ShowEchoVRMusic()
+        {
             try
             {
-                if (Program.InstalledSpeakerSystemVersion.Length > 0)
+                string dir = Program.EchoGameDir;
+                echoMusicFolderText.Text = dir.Length > 0
+                    ? dir
+                    : "Spark doesn't know where Echo VR is yet. Start Echo once with Spark open.";
+                if (!Program.IsEchoVRMusicInstalled)
                 {
-                    installEchoSpeakerSystem.Visibility = Visibility.Hidden;
-                    startStopEchoSpeakerSystem.Visibility = Visibility.Visible;
-                    speakerSystemInstallLabel.Visibility = Visibility.Hidden;
+                    if (unityHWND != IntPtr.Zero) ShowWindow(unityHWND, 0);
+                    echoMusicInstallPanel.Visibility = Visibility.Visible;
+                    echoMusicInstallButton.IsEnabled = dir.Length > 0;
+                    return;
                 }
-                else
-                {
-                    installEchoSpeakerSystem.Visibility = Visibility.Visible;
-                    startStopEchoSpeakerSystem.Visibility = Visibility.Hidden;
-                }
-
-                updateEchoSpeakerSystem.Visibility = Program.IsSpeakerSystemUpdateAvailable
-                    ? Visibility.Visible
-                    : Visibility.Hidden;
+                echoMusicInstallPanel.Visibility = Visibility.Collapsed;
+                StartEchoVRMusic();
             }
             catch (Exception ex)
             {
-                LogRow(LogType.Error, $"Error showing or hiding speaker system.\n{ex}");
+                LogRow(LogType.Error, $"[EchoVRMusic] couldn't show the Music tab\n{ex}");
             }
         }
 
-        private async void installEchoSpeakerSystem_Click(object sender, RoutedEventArgs e)
+        private async void echoMusicInstallButton_Click(object sender, RoutedEventArgs e)
         {
-            speakerSystemInstallLabel.Visibility = Visibility.Hidden;
-            Program.netMQEvents.CloseApp();
-            Thread.Sleep(800);
-            KillSpeakerSystem();
-            startStopEchoSpeakerSystem.Content = Properties.Resources.Start_Echo_Speaker_System;
-
-            speakerSystemInstallLabel.Content = Properties.Resources.Installing_Echo_Speaker_System;
-            speakerSystemInstallLabel.Visibility = Visibility.Visible;
-            installEchoSpeakerSystem.IsEnabled = false;
-            startStopEchoSpeakerSystem.IsEnabled = false;
-            var progress = new Progress<string>(s => speakerSystemInstallLabel.Content = s);
-            await Task.Factory.StartNew(() => Program.InstallSpeakerSystem(progress),
-                TaskCreationOptions.None);
-
-            if (Program.InstalledSpeakerSystemVersion.Length > 0)
+            echoMusicInstallButton.IsEnabled = false;
+            echoMusicStatus.Text = "Installing...";
+            int code = await Task.Run(Program.InstallEchoVRMusic);
+            echoMusicStatus.Text = code switch
             {
-                installEchoSpeakerSystem.Visibility = Visibility.Hidden;
-                startStopEchoSpeakerSystem.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                installEchoSpeakerSystem.Visibility = Visibility.Visible;
-                startStopEchoSpeakerSystem.Visibility = Visibility.Hidden;
-            }
-
-            if (Program.IsSpeakerSystemUpdateAvailable)
-            {
-                updateEchoSpeakerSystem.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                updateEchoSpeakerSystem.Visibility = Visibility.Hidden;
-            }
+                0 => "",
+                1 => "Echo VR isn't in that folder.",
+                2 => "Close Echo VR first, then press Install again.",
+                3 => "Couldn't download the plugin loader. Check your internet connection.",
+                4 => "Couldn't write to the Echo VR folder.",
+                _ => "EchoVRMusic is missing from Spark's install. Reinstall Spark.",
+            };
+            echoMusicInstallButton.IsEnabled = true;
+            if (code == 0) ShowEchoVRMusic();
         }
 
-        public void SpeakerSystemStart(IntPtr unityHandle)
+        /// <summary>
+        /// Spark's current colours, in the form EchoVRMusicSetup.exe takes (--theme, or WM_COPYDATA
+        /// while it runs), so the embedded window matches the theme.
+        /// </summary>
+        private static string EchoVRMusicTheme()
         {
-            int essPid;
-            try { essPid = SpeakerSystemProcess.Id; }
-            catch (Exception) { return; }
-
-            // Poll off the UI thread: Unity's window appears a second or two after the
-            // process starts, and the old code enumerated exactly once, immediately.
-            Task.Run(() =>
+            static string Hex(string key)
             {
-                IntPtr child = IntPtr.Zero;
-                for (int i = 0; i < 80 && child == IntPtr.Zero; i++)
-                {
-                    Thread.Sleep(250);
-                    try { child = FindSpeakerSystemChild(unityHandle, essPid); }
-                    catch (Exception) { }
-                }
+                return Application.Current.Resources[key] is SolidColorBrush b
+                    ? $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}"
+                    : null;
+            }
 
-                if (child != IntPtr.Zero)
-                {
-                    // Give Unity a moment to report it is ready to be resized.
-                    for (int i = 0; i < 40; i++)
-                    {
-                        if ((((int)GetWindowLongPtr(child, GWL_USERDATA)) & UNITY_READY) == 1) break;
-                        Thread.Sleep(150);
-                    }
-                }
-
-                Dispatcher.Invoke(() =>
-                {
-                    if (child == IntPtr.Zero)
-                    {
-                        LogRow(LogType.Error,
-                            "[SpeakerSystem] no UnityWndClass window owned by pid " + essPid +
-                            " appeared under the Spark window - it did not embed.");
-                        speakerSystemInfoPanel.Visibility = Visibility.Visible;
-                        startStopEchoSpeakerSystem.Content = Properties.Resources.Start_Echo_Speaker_System;
-                        startStopEchoSpeakerSystem.IsEnabled = true;
-                        return;
-                    }
-
-                    unityHWND = child;
-                    SetWindowLong(child, GWL_STYLE, WS_VISIBLE);
-                    MoveSpeakerSystemWindow();
-                    speakerSystemInstallLabel.Visibility = Visibility.Hidden;
-                    speakerSystemInfoPanel.Visibility = Visibility.Collapsed;
-                    startStopEchoSpeakerSystem.Content = Properties.Resources.Stop_Echo_Speaker_System;
-                    startStopEchoSpeakerSystem.IsEnabled = true;
-                });
-            });
+            (string name, string key)[] map =
+            {
+                ("bg", "ControlDarkerBackground"), ("surface", "SurfaceCard"), ("line", "SurfaceBorder"),
+                ("text", "TextPrimary"), ("muted", "TextDim"), ("accent", "ControlAccent"),
+            };
+            return string.Join(",", map.Select(m => (m.name, hex: Hex(m.key)))
+                .Where(m => m.hex != null)
+                .Select(m => $"{m.name}={m.hex}"));
         }
 
-        public IntPtr GetUnityHandler()
+        [StructLayout(LayoutKind.Sequential)]
+        private struct COPYDATASTRUCT
         {
-            IntPtr unityHandle = IntPtr.Zero;
-            Dispatcher.Invoke(() =>
-            {
-                WindowInteropHelper helper = new WindowInteropHelper(this);
-                HwndSource hwndSource = HwndSource.FromHwnd(helper.EnsureHandle());
-                if (hwndSource != null) unityHandle = hwndSource.Handle;
-                return unityHandle;
-            });
-            return unityHandle;
+            public IntPtr dwData;
+            public int cbData;
+            public IntPtr lpData;
         }
 
-        private void startStopEchoSpeakerSystem_Click(object sender, RoutedEventArgs e)
-        {
-            if (!speakerSystemPanel.IsVisible) return;
+        [DllImport("user32.dll", EntryPoint = "SendMessageW")]
+        private static extern IntPtr SendCopyData(IntPtr hWnd, int msg, IntPtr wParam, ref COPYDATASTRUCT data);
 
-            // HasExited throws on a Process that was never started, which used to happen
-            // after a failed launch and made the button dead until Spark was restarted.
-            bool notRunning;
+        private const int WM_COPYDATA = 0x004A;
+        private const int ECHOVRMUSIC_THEME = 0x45564D54;   // "EVMT"
+        private bool echoMusicThemeHooked;
+
+        /// <summary>Sends the current theme to the running EchoVRMusic window.</summary>
+        private void SendEchoVRMusicTheme()
+        {
+            if (unityHWND == IntPtr.Zero) return;
+            string theme = EchoVRMusicTheme() + "\0";
+            IntPtr text = Marshal.StringToHGlobalUni(theme);
             try
             {
-                notRunning = SpeakerSystemProcess == null || SpeakerSystemProcess.HasExited;
+                COPYDATASTRUCT data = new COPYDATASTRUCT
+                {
+                    dwData = (IntPtr)ECHOVRMUSIC_THEME,
+                    cbData = theme.Length * 2,
+                    lpData = text,
+                };
+                SendCopyData(unityHWND, WM_COPYDATA, IntPtr.Zero, ref data);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(text);
+            }
+        }
+
+        /// <summary>
+        /// Starts EchoVRMusicSetup.exe as a child of this window (--embed) and puts it over the
+        /// Music panel. It shows its settings, and closes by itself when Spark does.
+        /// </summary>
+        private void StartEchoVRMusic()
+        {
+            bool running;
+            try
+            {
+                running = SpeakerSystemProcess != null && !SpeakerSystemProcess.HasExited;
             }
             catch (InvalidOperationException)
             {
-                notRunning = true;
+                running = false;
+            }
+            if (running)
+            {
+                if (unityHWND != IntPtr.Zero)
+                {
+                    ShowWindow(unityHWND, 1);
+                    MoveSpeakerSystemWindow();
+                }
+                return;
+            }
+
+            if (!echoMusicThemeHooked)
+            {
+                echoMusicThemeHooked = true;
+                ThemesController.ThemeApplied += () => Dispatcher.BeginInvoke(SendEchoVRMusicTheme);
+            }
+
+            try
+            {
+                IntPtr host = new WindowInteropHelper(this).EnsureHandle();
+                Process starting = new Process();
+                starting.StartInfo.FileName = Program.EchoVRMusicSetupPath;
+                starting.StartInfo.Arguments =
+                    $"--embed {host.ToInt64()} --dir \"{Program.EchoGameDir}\" --theme \"{EchoVRMusicTheme()}\"";
+                starting.StartInfo.UseShellExecute = false;
+                starting.Start();
+                SpeakerSystemProcess = starting;
+                int pid = starting.Id;
+                unityHWND = IntPtr.Zero;
+
+                // The window appears a moment after the process starts.
+                Task.Run(() =>
+                {
+                    IntPtr child = IntPtr.Zero;
+                    for (int i = 0; i < 50 && child == IntPtr.Zero; i++)
+                    {
+                        Thread.Sleep(100);
+                        try { child = FindSpeakerSystemChild(host, pid); }
+                        catch (Exception) { }
+                    }
+                    Dispatcher.Invoke(() =>
+                    {
+                        if (child == IntPtr.Zero)
+                        {
+                            LogRow(LogType.Error, $"[EchoVRMusic] no window from pid {pid} appeared under Spark's window");
+                            return;
+                        }
+                        unityHWND = child;
+                        MoveSpeakerSystemWindow();
+                        ShowWindow(child, speakerSystemPanel.IsVisible ? 1 : 0);
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                LogRow(LogType.Error, $"[EchoVRMusic] failed to start\n{ex}");
                 SpeakerSystemProcess = null;
-            }
-
-            if (notRunning)
-            {
-                Process starting = null;
-                try
-                {
-                    speakerSystemInstallLabel.Visibility = Visibility.Hidden;
-                    startStopEchoSpeakerSystem.IsEnabled = false;
-                    startStopEchoSpeakerSystem.Content = Properties.Resources.Stop_Echo_Speaker_System;
-
-                    string essPath = "C:\\Program Files (x86)\\Echo Speaker System\\Echo Speaker System.exe";
-                    if (!File.Exists(essPath))
-                    {
-                        throw new FileNotFoundException(
-                            "Echo Speaker System is not installed at " + essPath, essPath);
-                    }
-
-                    WindowInteropHelper helper = new WindowInteropHelper(this);
-                    HwndSource hwndSource = HwndSource.FromHwnd(helper.EnsureHandle());
-                    if (hwndSource == null)
-                    {
-                        // Used to be an empty if-body: nothing launched, the button stayed
-                        // disabled, and there was no clue why.
-                        throw new InvalidOperationException(
-                            "Could not obtain the Spark window handle to embed into.");
-                    }
-
-                    IntPtr unityHandle = hwndSource.Handle;
-                    // ToInt64: window handles are 64-bit on x64 and ToInt32 throws
-                    // OverflowException on any handle above the Int32 range.
-                    string args = "ignitebot -parentHWND " + unityHandle.ToInt64() +
-                                  " " + Environment.CommandLine;
-                    LogRow(LogType.Info, $"[SpeakerSystem] launching: {essPath} {args}");
-
-                    starting = new Process();
-                    starting.StartInfo.FileName = essPath;
-                    starting.StartInfo.Arguments = args;
-                    starting.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                    starting.StartInfo.CreateNoWindow = true;
-
-                    starting.Start();
-                    // Only publish the process once it actually started, so a failure
-                    // cannot leave an unstarted Process behind for HasExited to trip on.
-                    SpeakerSystemProcess = starting;
-                    SpeakerSystemProcess.WaitForInputIdle();
-                    // The Unity window takes over this area now.
-                    speakerSystemInfoPanel.Visibility = Visibility.Collapsed;
-                    SpeakerSystemStart(unityHandle);
-                }
-                catch (Exception ex)
-                {
-                    // This was silent, which is why nothing showed up in the log when the
-                    // embed failed.
-                    LogRow(LogType.Error, $"[SpeakerSystem] failed to start\n{ex}");
-                    try { if (starting != null && !starting.HasExited) starting.Kill(); } catch { }
-                    SpeakerSystemProcess = null;
-                    speakerSystemInfoPanel.Visibility = Visibility.Visible;
-                    startStopEchoSpeakerSystem.Content = Properties.Resources.Start_Echo_Speaker_System;
-                    startStopEchoSpeakerSystem.IsEnabled = true;
-                }
-            }
-            else
-            {
-                speakerSystemInstallLabel.Visibility = Visibility.Hidden;
-                Program.netMQEvents.CloseApp();
-                Thread.Sleep(800);
-                KillSpeakerSystem();
-                speakerSystemInfoPanel.Visibility = Visibility.Visible;
-                startStopEchoSpeakerSystem.Content = Properties.Resources.Start_Echo_Speaker_System;
-                startStopEchoSpeakerSystem.IsEnabled = true;
             }
         }
 
