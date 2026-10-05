@@ -2822,6 +2822,7 @@ namespace Spark
         {
             try
             {
+                CheckEchoVRMusicUpdate();
                 string dir = Program.EchoGameDir;
                 echoMusicFolderText.Text = dir.Length > 0
                     ? dir
@@ -2840,6 +2841,57 @@ namespace Spark
             {
                 LogRow(LogType.Error, $"[EchoVRMusic] couldn't show the Music tab\n{ex}");
             }
+        }
+
+        private bool echoMusicUpdateChecked;
+        private string echoMusicUpdateUrl;
+
+        /// <summary>
+        /// Once per Spark session, asks GitHub for the latest EchoVRMusic release and offers it in
+        /// the bar at the top of the Music tab when it's newer than the app Spark has.
+        /// </summary>
+        private async void CheckEchoVRMusicUpdate()
+        {
+            if (echoMusicUpdateChecked) return;
+            echoMusicUpdateChecked = true;
+            var latest = await Program.GetLatestEchoVRMusicRelease();
+            if (latest == null || latest.Value.version <= Program.EchoVRMusicVersion) return;
+            echoMusicUpdateUrl = latest.Value.url;
+            echoMusicUpdateText.Text = $"EchoVRMusic v{latest.Value.version} is available (you have v{Program.EchoVRMusicVersion}).";
+            echoMusicUpdateButton.IsEnabled = true;
+            echoMusicUpdateBar.Visibility = Visibility.Visible;
+        }
+
+        private async void echoMusicUpdateButton_Click(object sender, RoutedEventArgs e)
+        {
+            echoMusicUpdateButton.IsEnabled = false;
+            echoMusicUpdateText.Text = "Downloading EchoVRMusic...";
+            if (!await Program.DownloadEchoVRMusic(echoMusicUpdateUrl))
+            {
+                echoMusicUpdateText.Text = "Couldn't download the update. Check your internet connection.";
+                echoMusicUpdateButton.IsEnabled = true;
+                return;
+            }
+
+            // The tab's app is the old version: close it, put the new plugin into Echo, reopen it.
+            KillSpeakerSystem();
+            SpeakerSystemProcess = null;
+            if (Program.IsEchoVRMusicInstalled)
+            {
+                echoMusicUpdateText.Text = "Installing...";
+                int code = await Task.Run(Program.InstallEchoVRMusic);
+                if (code != 0)
+                {
+                    echoMusicUpdateText.Text = code == 2
+                        ? "Close Echo VR, then press Update again."
+                        : "Couldn't install the update into the Echo VR folder.";
+                    echoMusicUpdateButton.IsEnabled = true;
+                    ShowEchoVRMusic();
+                    return;
+                }
+            }
+            echoMusicUpdateBar.Visibility = Visibility.Collapsed;
+            ShowEchoVRMusic();
         }
 
         private async void echoMusicInstallButton_Click(object sender, RoutedEventArgs e)

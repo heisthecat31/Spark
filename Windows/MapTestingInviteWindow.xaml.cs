@@ -12,7 +12,7 @@ namespace Spark
 	/// </summary>
 	public partial class MapTestingInviteWindow : Window
 	{
-		public const string DiscordUrl = "https://discord.gg/Bk7kVgWPTp";
+		public const string DiscordUrl = "https://discord.gg/4VrpA95fMg";
 
 		public MapTestingInviteWindow()
 		{

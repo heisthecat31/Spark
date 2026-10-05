@@ -3650,10 +3650,93 @@ namespace Spark
 		#region EchoVRMusic
 		// EchoVRMusic plays the PC's audio through Echo VR's own in-map speakers. Spark ships its setup
 		// app (EchoVRMusic\EchoVRMusicSetup.exe), installs it into the Echo folder Spark already
-		// knows, and hosts the app's window in the Music tab.
+		// knows, and hosts the app's window in the Music tab. Newer releases of the app come from
+		// EchoVRMusicRepo's GitHub releases (tag v<version>, asset EchoVRMusicSetup.exe) and are
+		// downloaded next to Spark's settings, since Spark's own folder may not be writable.
 
-		public static string EchoVRMusicSetupPath =>
+		public const string EchoVRMusicRepo = "heisthecat31/EchoVRMusic";
+
+		private static string BundledEchoVRMusicPath =>
 			Path.Combine(AppContext.BaseDirectory, "EchoVRMusic", "EchoVRMusicSetup.exe");
+
+		private static string DownloadedEchoVRMusicPath =>
+			Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+				"IgniteVR", "Spark", "EchoVRMusic", "EchoVRMusicSetup.exe");
+
+		/// <summary>The file version of an EchoVRMusicSetup.exe (0.0.0 if missing or unreadable).</summary>
+		public static Version EchoVRMusicVersionOf(string exe)
+		{
+			try
+			{
+				if (!File.Exists(exe)) return new Version(0, 0, 0);
+				FileVersionInfo v = FileVersionInfo.GetVersionInfo(exe);
+				return new Version(v.FileMajorPart, v.FileMinorPart, v.FileBuildPart);
+			}
+			catch (Exception)
+			{
+				return new Version(0, 0, 0);
+			}
+		}
+
+		/// <summary>The newer of the copy Spark ships and the last downloaded update.</summary>
+		public static string EchoVRMusicSetupPath =>
+			EchoVRMusicVersionOf(DownloadedEchoVRMusicPath) > EchoVRMusicVersionOf(BundledEchoVRMusicPath)
+				? DownloadedEchoVRMusicPath
+				: BundledEchoVRMusicPath;
+
+		public static Version EchoVRMusicVersion => EchoVRMusicVersionOf(EchoVRMusicSetupPath);
+
+		/// <summary>
+		/// The latest EchoVRMusic release on GitHub: its version and the EchoVRMusicSetup.exe download,
+		/// or null if it can't be reached or has no such asset.
+		/// </summary>
+		public static async Task<(Version version, string url)?> GetLatestEchoVRMusicRelease()
+		{
+			try
+			{
+				using HttpClient http = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
+				http.DefaultRequestHeaders.UserAgent.ParseAdd("Spark");
+				string json = await http.GetStringAsync($"https://api.github.com/repos/{EchoVRMusicRepo}/releases/latest");
+				JObject release = JObject.Parse(json);
+				string tag = ((string)release["tag_name"] ?? "").TrimStart('v', 'V');
+				if (!Version.TryParse(tag, out Version version)) return null;
+				string url = release["assets"]?
+					.FirstOrDefault(a => string.Equals((string)a["name"], "EchoVRMusicSetup.exe", StringComparison.OrdinalIgnoreCase))?
+					["browser_download_url"]?.ToString();
+				if (string.IsNullOrEmpty(url)) return null;
+				return (new Version(version.Major, version.Minor, Math.Max(0, version.Build)), url);
+			}
+			catch (Exception e)
+			{
+				LogRow(LogType.Info, $"[EchoVRMusic] update check failed: {e.Message}");
+				return null;
+			}
+		}
+
+		/// <summary>Downloads a release of the app; it's used from then on when it's the newest.</summary>
+		public static async Task<bool> DownloadEchoVRMusic(string url)
+		{
+			try
+			{
+				string target = DownloadedEchoVRMusicPath;
+				Directory.CreateDirectory(Path.GetDirectoryName(target));
+				string temp = target + ".download";
+				using (HttpClient http = new HttpClient { Timeout = TimeSpan.FromMinutes(2) })
+				{
+					http.DefaultRequestHeaders.UserAgent.ParseAdd("Spark");
+					byte[] bytes = await http.GetByteArrayAsync(url);
+					await File.WriteAllBytesAsync(temp, bytes);
+				}
+				File.Move(temp, target, true);
+				LogRow(LogType.Info, $"[EchoVRMusic] downloaded v{EchoVRMusicVersionOf(target)}");
+				return true;
+			}
+			catch (Exception e)
+			{
+				LogRow(LogType.Error, $"[EchoVRMusic] download failed\n{e}");
+				return false;
+			}
+		}
 
 		/// <summary>Echo's bin\win10 folder, from the echovr.exe path in Spark's settings ("" if unknown).</summary>
 		public static string EchoGameDir

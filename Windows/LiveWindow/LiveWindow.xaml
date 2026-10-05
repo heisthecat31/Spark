@@ -1578,9 +1578,25 @@
                         </StackPanel>
                     </TabItem.Header>
                     <Grid Background="{DynamicResource ControlDarkerBackground}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <!-- A newer EchoVRMusic release is on GitHub. -->
+                        <Border x:Name="echoMusicUpdateBar" Grid.Row="0" Visibility="Collapsed" Padding="16,8"
+                                Background="{DynamicResource SurfaceCard}" BorderBrush="{DynamicResource SurfaceBorder}" BorderThickness="0,0,0,1">
+                            <DockPanel>
+                                <Button x:Name="echoMusicUpdateButton" DockPanel.Dock="Right" Content="Update" Width="110" Height="28"
+                                        Click="echoMusicUpdateButton_Click"
+                                        Background="{DynamicResource ControlAccent}" Foreground="{DynamicResource ControlAccentForeground}"
+                                        BorderBrush="{DynamicResource ControlAccent}"/>
+                                <TextBlock x:Name="echoMusicUpdateText" VerticalAlignment="Center" FontSize="13"
+                                           Foreground="{DynamicResource TextPrimary}" TextTrimming="CharacterEllipsis"/>
+                            </DockPanel>
+                        </Border>
                         <!-- Shown until EchoVRMusic is installed. After that, EchoVRMusicSetup.exe's own
                              window (a native child of Spark's window) sits over speakerSystemPanel. -->
-                        <StackPanel x:Name="echoMusicInstallPanel" Visibility="Collapsed" MaxWidth="520"
+                        <StackPanel x:Name="echoMusicInstallPanel" Grid.Row="1" Visibility="Collapsed" MaxWidth="520"
                                     VerticalAlignment="Center" HorizontalAlignment="Center">
                             <TextBlock Text="EchoVRMusic" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"
                                        Foreground="{DynamicResource TextPrimary}"/>
@@ -1596,7 +1612,7 @@
                             <TextBlock x:Name="echoMusicFolderText" Margin="0,18,0,0" FontSize="11" HorizontalAlignment="Center"
                                        TextWrapping="Wrap" TextAlignment="Center" Foreground="{DynamicResource TextFaint}"/>
                         </StackPanel>
-                        <ContentPresenter x:Name="speakerSystemPanel" SizeChanged="speakerSystemPanel_Resize" IsVisibleChanged="speakerSystemPanel_IsVisibleChanged"/>
+                        <ContentPresenter x:Name="speakerSystemPanel" Grid.Row="1" SizeChanged="speakerSystemPanel_Resize" IsVisibleChanged="speakerSystemPanel_IsVisibleChanged"/>
                     </Grid>
                 </TabItem>
                 
