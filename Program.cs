@@ -73,7 +73,6 @@ namespace Spark
 
 		// public static string currentAccessCodeUsername = "";
 		public static string InstalledSpeakerSystemVersion = "";
-		public static bool IsSpeakerSystemUpdateAvailable;
 
 		public static ConcurrentQueue<AccumulatedFrame> rounds = new ConcurrentQueue<AccumulatedFrame>();
 		public static AccumulatedFrame CurrentRound => rounds.LastOrDefault() ?? emptyRound;
@@ -115,7 +114,7 @@ namespace Spark
 		public static ulong fetchFrameIndex = 0;
 
 
-		private static readonly object lastJSONLock = new object();
+		internal static readonly object lastJSONLock = new object();
 		private static readonly object lastFrameLock = new object();
 		public static readonly object logOutputWriteLock = new object();
 		public static readonly object gameStateLock = new object();
@@ -185,6 +184,7 @@ namespace Spark
 		public static OBS obs;
 		public static Medal medal;
 		private static OverlayServer overlayServer;
+		public static SpectatorOverlayController spectatorOverlayController;
 		public static SpectateMeController spectateMeController;
 		public static SimpleSpectateController simpleSpectateController;
 		public static UploadController uploadController;
@@ -439,23 +439,6 @@ namespace Spark
 
 				netMQEvents = new NetMQEvents();
 
-				_ = Task.Run(() =>
-				{
-					try
-					{
-						InstalledSpeakerSystemVersion = FindEchoSpeakerSystemInstallVersion();
-						if (InstalledSpeakerSystemVersion.Length > 0)
-						{
-							string[] latestSpeakerSystemVer = GetLatestSpeakerSystemURLVer();
-							IsSpeakerSystemUpdateAvailable = IsNewerSpeakerSystemVersion(
-								latestSpeakerSystemVer[1], InstalledSpeakerSystemVersion);
-						}
-					}
-					catch (Exception ex)
-					{
-						Logger.Error($"[SpeakerSystem] Background update check failed: {ex.Message}");
-					}
-				});
 
 
 				SparkSettings.instance.sparkExeLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Spark.exe");
@@ -499,6 +482,14 @@ namespace Spark
 				{
 					ToggleWindow(typeof(FirstTimeSetupWindow));
 					SparkSettings.instance.firstTimeSetupShown = true;
+				}
+				// One-time invite to the map testing Discord. A brand-new install already has the
+				// first-time setup window open, so it gets the invite on its next launch instead.
+				else if (!SparkSettings.instance.mapTestingInviteShown)
+				{
+					SparkSettings.instance.mapTestingInviteShown = true;
+					SparkSettings.instance.Save();
+					new MapTestingInviteWindow { Owner = liveWindow }.Show();
 				}
 
 				// Check for command-line flags
@@ -611,6 +602,7 @@ namespace Spark
 				loggerEvents = new LoggerEvents();
 				spectateMeController = new SpectateMeController();
 				simpleSpectateController = new SimpleSpectateController();
+				spectatorOverlayController = new SpectatorOverlayController();
 				uploadController = new UploadController();
 				localDatabase = new LocalDatabase();
 				cameraController = new CameraController();
@@ -1591,23 +1583,6 @@ namespace Spark
 				SetForegroundWindow(EchoHandle);
 				AttachThreadInput(foregroundThread, echoThread, false);
 			}
-		}
-
-		public static string FindEchoSpeakerSystemInstallVersion()
-		{
-			string ret = "";
-			try
-			{
-				string filePath = Path.Combine("C:\\Program Files (x86)\\Echo Speaker System", "latestversion.txt");
-
-				string[] lines = File.ReadAllLines(filePath);
-				if (lines != null && lines.Length > 0)
-				{
-					ret = "v" + lines[0];
-				}
-			}
-			catch { }
-			return ret;
 		}
 
 		private static void UpdateEchoExeLocation()
@@ -3475,71 +3450,6 @@ namespace Spark
 		}
 		
 
-		/// <summary>
-		/// True only when a published release is genuinely newer than what is installed.
-		/// This used to be a plain inequality, which meant running a build ahead of the
-		/// newest published release prompted the user to "update" to an older one.
-		/// Tags look like "v0.4.5"; suffixes such as "v0.4.5_BETA" compare as 0.4.5.
-		/// </summary>
-		private static bool IsNewerSpeakerSystemVersion(string remoteTag, string localTag)
-		{
-			int[] remote = ParseSpeakerSystemVersion(remoteTag);
-			int[] local = ParseSpeakerSystemVersion(localTag);
-			if (remote == null || local == null)
-			{
-				// Unparseable on either side: only offer an update if something changed.
-				return !string.IsNullOrEmpty(remoteTag) && remoteTag != localTag;
-			}
-			for (int i = 0; i < 3; i++)
-			{
-				if (remote[i] != local[i]) return remote[i] > local[i];
-			}
-			return false;
-		}
-
-		private static int[] ParseSpeakerSystemVersion(string tag)
-		{
-			if (string.IsNullOrWhiteSpace(tag)) return null;
-			string[] parts = tag.TrimStart('v', 'V').Split('.');
-			int[] nums = new int[3];
-			for (int i = 0; i < 3 && i < parts.Length; i++)
-			{
-				string digits = new string(parts[i].TakeWhile(char.IsDigit).ToArray());
-				if (digits.Length == 0 || !int.TryParse(digits, out nums[i])) return null;
-			}
-			return nums;
-		}
-
-		private static string[] GetLatestSpeakerSystemURLVer()
-		{
-			string[] ret = new string[2];
-			try
-			{
-				HttpWebRequest req = (HttpWebRequest)WebRequest.Create(@"https://api.github.com/repos/heisthecat31/Echo-VR-Speaker-System/releases/latest");
-				req.Accept = "application/json";
-				req.UserAgent = "Spark";
-
-				WebResponse resp = req.GetResponse();
-				Stream ds = resp.GetResponseStream();
-				StreamReader sr = new StreamReader(ds);
-
-				// Session Contents
-				string textResp = sr.ReadToEnd();
-				VersionJson versionJson = JsonConvert.DeserializeObject<VersionJson>(textResp);
-				// FirstOrDefault: a release with no .exe attached used to throw here.
-				Asset installer = versionJson.assets?
-					.FirstOrDefault(url => url.browser_download_url != null &&
-					                       url.browser_download_url.EndsWith("exe"));
-				ret[0] = installer?.browser_download_url;
-				ret[1] = versionJson.tag_name;
-			}
-			catch (Exception e)
-			{
-				LogRow(LogType.Error, e.Message);
-			}
-			return ret;
-		}
-		
 		#region IP
 		
 		// The max number of physical addresses.
@@ -3738,68 +3648,139 @@ namespace Spark
 		#endregion
 		
 
-		public static void InstallSpeakerSystem(IProgress<string> progress)
+
+		#region EchoVRMusic
+		// EchoVRMusic plays the PC's audio through Echo VR's own in-map speakers. Spark ships its setup
+		// app (EchoVRMusic\EchoVRMusicSetup.exe), installs it into the Echo folder Spark already
+		// knows, and hosts the app's window in the Music tab. Newer releases of the app come from
+		// EchoVRMusicRepo's GitHub releases (tag v<version>, asset EchoVRMusicSetup.exe) and are
+		// downloaded next to Spark's settings, since Spark's own folder may not be writable.
+
+		public const string EchoVRMusicRepo = "heisthecat31/EchoVRMusic";
+
+		private static string BundledEchoVRMusicPath =>
+			Path.Combine(AppContext.BaseDirectory, "EchoVRMusic", "EchoVRMusicSetup.exe");
+
+		private static string DownloadedEchoVRMusicPath =>
+			Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+				"IgniteVR", "Spark", "EchoVRMusic", "EchoVRMusicSetup.exe");
+
+		/// <summary>The file version of an EchoVRMusicSetup.exe (0.0.0 if missing or unreadable).</summary>
+		public static Version EchoVRMusicVersionOf(string exe)
 		{
 			try
 			{
-				IntPtr unityHandle = liveWindow.GetUnityHandler();
-				string[] SpeakerSystemURLVer = GetLatestSpeakerSystemURLVer();
-				string updateFileName = "EchoSpeakerSystemInstall_" + SpeakerSystemURLVer[1] + ".exe";
-				WebClient webClient = new WebClient();
-				//webClient.DownloadFileCompleted += Completed;
-				//webClient.DownloadProgressChanged += ProgressChanged;
-				webClient.DownloadFile(new Uri(SpeakerSystemURLVer[0]), Path.GetTempPath() + updateFileName);
-				Process process = Process.Start(new ProcessStartInfo
-				{
-					FileName = Path.Combine(Path.GetTempPath(), updateFileName),
-					UseShellExecute = true,
-					Arguments = "/ignite=true /HWND=" + unityHandle.ToInt32() + " "
-				});
-				int count = 0;
-				string SpeakerSystemInstallLabel = "Installing Echo Speaker System";
-				string statusDots = "";
-				while (!process.HasExited && count < 12000) //Time out after 10 mins
-				{
-					if (count % 16 == 0)
-					{
-						statusDots = "";
-					}
-					else if (count % 4 == 0)
-					{
-						statusDots += ".";
-					}
-					count++;
-
-					progress.Report(SpeakerSystemInstallLabel + statusDots);
-					Thread.Sleep(50);
-				}
-				if (!process.HasExited)
-				{
-					process.Kill();
-					progress.Report("Echo Speaker System install failed!");
-				}
-				else if (process.ExitCode > -1)
-				{
-					Process[] speakerSystemProcs = Process.GetProcessesByName("Echo Speaker System");
-					if (speakerSystemProcs.Length > 0)
-					{
-						liveWindow.SpeakerSystemProcess = speakerSystemProcs[0];
-						liveWindow.SpeakerSystemStart(unityHandle);
-					}
-					progress.Report("Echo Speaker System installed successfully!");
-				}
-				int code = process.ExitCode;
-				InstalledSpeakerSystemVersion = FindEchoSpeakerSystemInstallVersion();
-				IsSpeakerSystemUpdateAvailable = false;
+				if (!File.Exists(exe)) return new Version(0, 0, 0);
+				FileVersionInfo v = FileVersionInfo.GetVersionInfo(exe);
+				return new Version(v.FileMajorPart, v.FileMinorPart, v.FileBuildPart);
 			}
 			catch (Exception)
 			{
-				InstalledSpeakerSystemVersion = FindEchoSpeakerSystemInstallVersion();
-				IsSpeakerSystemUpdateAvailable = false;
-				progress.Report("Echo Speaker System install failed!");
+				return new Version(0, 0, 0);
 			}
 		}
 
+		/// <summary>The newer of the copy Spark ships and the last downloaded update.</summary>
+		public static string EchoVRMusicSetupPath =>
+			EchoVRMusicVersionOf(DownloadedEchoVRMusicPath) > EchoVRMusicVersionOf(BundledEchoVRMusicPath)
+				? DownloadedEchoVRMusicPath
+				: BundledEchoVRMusicPath;
+
+		public static Version EchoVRMusicVersion => EchoVRMusicVersionOf(EchoVRMusicSetupPath);
+
+		/// <summary>
+		/// The latest EchoVRMusic release on GitHub: its version and the EchoVRMusicSetup.exe download,
+		/// or null if it can't be reached or has no such asset.
+		/// </summary>
+		public static async Task<(Version version, string url)?> GetLatestEchoVRMusicRelease()
+		{
+			try
+			{
+				using HttpClient http = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
+				http.DefaultRequestHeaders.UserAgent.ParseAdd("Spark");
+				string json = await http.GetStringAsync($"https://api.github.com/repos/{EchoVRMusicRepo}/releases/latest");
+				JObject release = JObject.Parse(json);
+				string tag = ((string)release["tag_name"] ?? "").TrimStart('v', 'V');
+				if (!Version.TryParse(tag, out Version version)) return null;
+				string url = release["assets"]?
+					.FirstOrDefault(a => string.Equals((string)a["name"], "EchoVRMusicSetup.exe", StringComparison.OrdinalIgnoreCase))?
+					["browser_download_url"]?.ToString();
+				if (string.IsNullOrEmpty(url)) return null;
+				return (new Version(version.Major, version.Minor, Math.Max(0, version.Build)), url);
+			}
+			catch (Exception e)
+			{
+				LogRow(LogType.Info, $"[EchoVRMusic] update check failed: {e.Message}");
+				return null;
+			}
+		}
+
+		/// <summary>Downloads a release of the app; it's used from then on when it's the newest.</summary>
+		public static async Task<bool> DownloadEchoVRMusic(string url)
+		{
+			try
+			{
+				string target = DownloadedEchoVRMusicPath;
+				Directory.CreateDirectory(Path.GetDirectoryName(target));
+				string temp = target + ".download";
+				using (HttpClient http = new HttpClient { Timeout = TimeSpan.FromMinutes(2) })
+				{
+					http.DefaultRequestHeaders.UserAgent.ParseAdd("Spark");
+					byte[] bytes = await http.GetByteArrayAsync(url);
+					await File.WriteAllBytesAsync(temp, bytes);
+				}
+				File.Move(temp, target, true);
+				LogRow(LogType.Info, $"[EchoVRMusic] downloaded v{EchoVRMusicVersionOf(target)}");
+				return true;
+			}
+			catch (Exception e)
+			{
+				LogRow(LogType.Error, $"[EchoVRMusic] download failed\n{e}");
+				return false;
+			}
+		}
+
+		/// <summary>Echo's bin\win10 folder, from the echovr.exe path in Spark's settings ("" if unknown).</summary>
+		public static string EchoGameDir
+		{
+			get
+			{
+				string exe = SparkSettings.instance.echoVRPath;
+				return string.IsNullOrEmpty(exe) ? "" : Path.GetDirectoryName(exe) ?? "";
+			}
+		}
+
+		public static bool IsEchoVRMusicInstalled =>
+			EchoGameDir.Length > 0 && File.Exists(Path.Combine(EchoGameDir, "plugins", "EchoVRMusic.dll"));
+
+		/// <summary>
+		/// Installs EchoVRMusic (and the plugin loader, if needed) into EchoGameDir without a window.
+		/// Returns the setup app's exit code: 0 ok, 1 no Echo VR there, 2 Echo is running, 3 the loader
+		/// download failed, 4 couldn't write files; -1 if the setup app is missing or didn't finish.
+		/// </summary>
+		public static int InstallEchoVRMusic()
+		{
+			try
+			{
+				if (!File.Exists(EchoVRMusicSetupPath)) return -1;
+				using Process p = Process.Start(new ProcessStartInfo
+				{
+					FileName = EchoVRMusicSetupPath,
+					Arguments = $"--install --silent --dir \"{EchoGameDir}\"",
+					UseShellExecute = false,
+					CreateNoWindow = true,
+				});
+				if (p == null || !p.WaitForExit(180000)) return -1;
+				LogRow(LogType.Info, $"[EchoVRMusic] install finished with code {p.ExitCode}");
+				return p.ExitCode;
+			}
+			catch (Exception e)
+			{
+				LogRow(LogType.Error, $"[EchoVRMusic] install failed\n{e}");
+				return -1;
+			}
+		}
+		#endregion
 
 		public static void WaitUntilLocalGameLaunched(Action callback, string ip = "127.0.0.1", int port = 6721)
 		{

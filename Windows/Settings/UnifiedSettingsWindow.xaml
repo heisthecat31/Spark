@@ -311,7 +311,7 @@
 									<CheckBox Content="Atlas" Style="{StaticResource ThemedCheckBox}" IsChecked="{l:SettingBinding showLinksTab}" Margin="0,0,18,9" />
 									<CheckBox Content="Event Log" Style="{StaticResource ThemedCheckBox}" IsChecked="{l:SettingBinding showEventLogTab}" Margin="0,0,18,9" />
 									<CheckBox Content="Scoreboard" Style="{StaticResource ThemedCheckBox}" IsChecked="{l:SettingBinding showScoreboardTab}" Margin="0,0,18,9" />
-									<CheckBox Content="Speaker System" Style="{StaticResource ThemedCheckBox}" IsChecked="{l:SettingBinding showSpeakerSystemTab}" Margin="0,0,18,9" />
+									<CheckBox Content="Music" Style="{StaticResource ThemedCheckBox}" IsChecked="{l:SettingBinding showSpeakerSystemTab}" Margin="0,0,18,9" />
 									<CheckBox Content="Server Info" Style="{StaticResource ThemedCheckBox}" IsChecked="{l:SettingBinding showServerInfoTab}" Margin="0,0,18,9" />
 									<CheckBox Content="Camera Write" Style="{StaticResource ThemedCheckBox}" IsChecked="{l:SettingBinding showWriteAPITab}" Margin="0,0,18,9" />
 									<CheckBox Content="Echo GP" Style="{StaticResource ThemedCheckBox}" IsChecked="{l:SettingBinding showEchoGPTab}" Margin="0,0,18,9" />

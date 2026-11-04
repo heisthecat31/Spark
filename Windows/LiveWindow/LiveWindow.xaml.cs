@@ -132,7 +132,6 @@ namespace Spark
         string blueLogo = "";
         string orangeLogo = "";
 
-        private bool tryingToShowGameOverlay;
 
         [DllImport("User32.dll")]
         static extern bool MoveWindow(IntPtr handle, int x, int y, int width, int height, bool redraw);
@@ -201,6 +200,7 @@ namespace Spark
         public LiveWindow()
         {
             InitializeComponent();
+            PopulateOverlayPicker();
 
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
@@ -454,14 +454,12 @@ namespace Spark
         }
 
         /// <summary>
-        /// Finds the Speaker System window among the children of <paramref name="parent"/>.
+        /// Finds the EchoVRMusic window among the children of <paramref name="parent"/>.
         ///
-        /// Unity reparents itself into Spark because of -parentHWND, but the window does
-        /// not exist the moment WaitForInputIdle returns, and Spark's window has several
-        /// other native children (a Static, and WebView2's Chrome_* windows for the
-        /// Browser tab). The old code took whichever child enumerated first and stopped,
-        /// which picked the Static and repositioned that instead - leaving the Unity view
-        /// at its default 1280x720 off in the corner, and the Speaker panel black.
+        /// EchoVRMusicSetup.exe creates itself as a child of Spark because of --embed, but the
+        /// window doesn't exist the moment the process starts, and Spark's window has other
+        /// native children too (a Static, and WebView2's Chrome_* windows for the Browser tab),
+        /// so match the owning process and the window class.
         /// </summary>
         private IntPtr FindSpeakerSystemChild(IntPtr parent, int essPid)
         {
@@ -474,7 +472,7 @@ namespace Spark
 
                 StringBuilder cls = new StringBuilder(256);
                 GetClassName(hwnd, cls, cls.Capacity);
-                if (cls.ToString() != "UnityWndClass") return 1;
+                if (cls.ToString() != "EchoVRMusicSetup") return 1;
 
                 found = hwnd;
                 return 0;
@@ -490,7 +488,7 @@ namespace Spark
         }
 
         /// <summary>
-        /// Positions the embedded Unity window over the Speaker panel. Must run on the UI
+        /// Positions the embedded EchoVRMusic window over the Music panel. Must run on the UI
         /// thread - it reads WPF layout - and converts to physical pixels, because
         /// MoveWindow works in pixels while WPF reports device-independent units.
         /// </summary>
@@ -519,9 +517,7 @@ namespace Spark
         {
             if (!speakerSystemPanel.IsVisible || SpeakerSystemProcess == null || SpeakerSystemProcess.Handle.ToInt32() <= 0) return;
 
-            Point relativePoint = speakerSystemPanel.TransformToAncestor(this).Transform(new Point(0, 0));
-            MoveWindow(unityHWND, (int)relativePoint.X, (int)relativePoint.Y, (int)speakerSystemPanel.ActualWidth, (int)speakerSystemPanel.ActualHeight, true);
-            ActivateUnityWindow();
+            MoveSpeakerSystemWindow();
         }
 
         private void liveWindow_FormClosed(object sender, EventArgs e)
@@ -873,36 +869,16 @@ namespace Spark
 
                     UpdateJoinLink();
 
-                    // if we're trying to show the window
-                    if (tryingToShowGameOverlay)
+                    // SpectatorOverlayController opens and closes the overlay; this only reports its state.
+                    if (!SparkSettings.instance.spectatorOverlayEnabled)
                     {
-                        // if the window is closed
-                        if (Program.GetWindowIfOpen(typeof(GameOverlay)) == null)
-                        {
-                            // if echovr is focused
-                            if (GetActiveProcessFileName().ProcessName == "echovr")
-                            {
-                                Program.ToggleWindow(typeof(GameOverlay));
-                            }
-                            else
-                            {
-                                ClickableOverlaySubtitle.Text = Properties.Resources.Echo_VR_not_active;
-                            }
-                        }
-                        else
-                        {
-                            // close the overlay
-                            if (GetActiveProcessFileName().ProcessName != "echovr")
-                            {
-                                Program.ToggleWindow(typeof(GameOverlay));
-                            }
-
-                            ClickableOverlaySubtitle.Text = Properties.Resources.Active;
-                        }
+                        ClickableOverlaySubtitle.Text = Properties.Resources.Not_active;
                     }
                     else
                     {
-                        ClickableOverlaySubtitle.Text = Properties.Resources.Not_active;
+                        ClickableOverlaySubtitle.Text = Program.GetWindowIfOpen(typeof(GameOverlay)) != null
+                            ? Properties.Resources.Active
+                            : Properties.Resources.Echo_VR_not_active;
                     }
 
                     // Collapsed, not Hidden — these now sit in the status row, so Hidden would leave a
@@ -2815,223 +2791,238 @@ namespace Spark
         private void speakerSystemPanel_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (!speakerSystemPanel.IsVisible) return;
+            ShowEchoVRMusic();
+        }
 
-            // These depend only on what is installed, not on whether Speaker System is
-            // currently running. They used to sit below an early return that fired when
-            // the process was null, so the update button kept its XAML default (Visible)
-            // and showed even when the installed version was already current.
+        /// <summary>
+        /// The Music tab: EchoVRMusic's own window when it's installed, otherwise the offer to
+        /// install it into the Echo folder Spark already knows.
+        /// </summary>
+        private void ShowEchoVRMusic()
+        {
             try
             {
-                if (Program.InstalledSpeakerSystemVersion.Length > 0)
+                CheckEchoVRMusicUpdate();
+                string dir = Program.EchoGameDir;
+                echoMusicFolderText.Text = dir.Length > 0
+                    ? dir
+                    : "Spark doesn't know where Echo VR is yet. Start Echo once with Spark open.";
+                if (!Program.IsEchoVRMusicInstalled)
                 {
-                    installEchoSpeakerSystem.Visibility = Visibility.Hidden;
-                    startStopEchoSpeakerSystem.Visibility = Visibility.Visible;
-                    speakerSystemInstallLabel.Visibility = Visibility.Hidden;
+                    if (unityHWND != IntPtr.Zero) ShowWindow(unityHWND, 0);
+                    echoMusicInstallPanel.Visibility = Visibility.Visible;
+                    echoMusicInstallButton.IsEnabled = dir.Length > 0;
+                    return;
                 }
-                else
-                {
-                    installEchoSpeakerSystem.Visibility = Visibility.Visible;
-                    startStopEchoSpeakerSystem.Visibility = Visibility.Hidden;
-                }
-
-                updateEchoSpeakerSystem.Visibility = Program.IsSpeakerSystemUpdateAvailable
-                    ? Visibility.Visible
-                    : Visibility.Hidden;
+                echoMusicInstallPanel.Visibility = Visibility.Collapsed;
+                StartEchoVRMusic();
             }
             catch (Exception ex)
             {
-                LogRow(LogType.Error, $"Error showing or hiding speaker system.\n{ex}");
+                LogRow(LogType.Error, $"[EchoVRMusic] couldn't show the Music tab\n{ex}");
             }
         }
 
-        private async void installEchoSpeakerSystem_Click(object sender, RoutedEventArgs e)
+        private bool echoMusicUpdateChecked;
+        private string echoMusicUpdateUrl;
+
+        /// <summary>
+        /// Once per Spark session, asks GitHub for the latest EchoVRMusic release and offers it in
+        /// the bar at the top of the Music tab when it's newer than the app Spark has.
+        /// </summary>
+        private async void CheckEchoVRMusicUpdate()
         {
-            speakerSystemInstallLabel.Visibility = Visibility.Hidden;
-            Program.netMQEvents.CloseApp();
-            Thread.Sleep(800);
+            if (echoMusicUpdateChecked) return;
+            echoMusicUpdateChecked = true;
+            var latest = await Program.GetLatestEchoVRMusicRelease();
+            if (latest == null || latest.Value.version <= Program.EchoVRMusicVersion) return;
+            echoMusicUpdateUrl = latest.Value.url;
+            echoMusicUpdateText.Text = $"EchoVRMusic v{latest.Value.version} is available (you have v{Program.EchoVRMusicVersion}).";
+            echoMusicUpdateButton.IsEnabled = true;
+            echoMusicUpdateBar.Visibility = Visibility.Visible;
+        }
+
+        private async void echoMusicUpdateButton_Click(object sender, RoutedEventArgs e)
+        {
+            echoMusicUpdateButton.IsEnabled = false;
+            echoMusicUpdateText.Text = "Downloading EchoVRMusic...";
+            if (!await Program.DownloadEchoVRMusic(echoMusicUpdateUrl))
+            {
+                echoMusicUpdateText.Text = "Couldn't download the update. Check your internet connection.";
+                echoMusicUpdateButton.IsEnabled = true;
+                return;
+            }
+
+            // The tab's app is the old version: close it, put the new plugin into Echo, reopen it.
             KillSpeakerSystem();
-            startStopEchoSpeakerSystem.Content = Properties.Resources.Start_Echo_Speaker_System;
-
-            speakerSystemInstallLabel.Content = Properties.Resources.Installing_Echo_Speaker_System;
-            speakerSystemInstallLabel.Visibility = Visibility.Visible;
-            installEchoSpeakerSystem.IsEnabled = false;
-            startStopEchoSpeakerSystem.IsEnabled = false;
-            var progress = new Progress<string>(s => speakerSystemInstallLabel.Content = s);
-            await Task.Factory.StartNew(() => Program.InstallSpeakerSystem(progress),
-                TaskCreationOptions.None);
-
-            if (Program.InstalledSpeakerSystemVersion.Length > 0)
+            SpeakerSystemProcess = null;
+            if (Program.IsEchoVRMusicInstalled)
             {
-                installEchoSpeakerSystem.Visibility = Visibility.Hidden;
-                startStopEchoSpeakerSystem.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                installEchoSpeakerSystem.Visibility = Visibility.Visible;
-                startStopEchoSpeakerSystem.Visibility = Visibility.Hidden;
-            }
-
-            if (Program.IsSpeakerSystemUpdateAvailable)
-            {
-                updateEchoSpeakerSystem.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                updateEchoSpeakerSystem.Visibility = Visibility.Hidden;
-            }
-        }
-
-        public void SpeakerSystemStart(IntPtr unityHandle)
-        {
-            int essPid;
-            try { essPid = SpeakerSystemProcess.Id; }
-            catch (Exception) { return; }
-
-            // Poll off the UI thread: Unity's window appears a second or two after the
-            // process starts, and the old code enumerated exactly once, immediately.
-            Task.Run(() =>
-            {
-                IntPtr child = IntPtr.Zero;
-                for (int i = 0; i < 80 && child == IntPtr.Zero; i++)
+                echoMusicUpdateText.Text = "Installing...";
+                int code = await Task.Run(Program.InstallEchoVRMusic);
+                if (code != 0)
                 {
-                    Thread.Sleep(250);
-                    try { child = FindSpeakerSystemChild(unityHandle, essPid); }
-                    catch (Exception) { }
+                    echoMusicUpdateText.Text = code == 2
+                        ? "Close Echo VR, then press Update again."
+                        : "Couldn't install the update into the Echo VR folder.";
+                    echoMusicUpdateButton.IsEnabled = true;
+                    ShowEchoVRMusic();
+                    return;
                 }
-
-                if (child != IntPtr.Zero)
-                {
-                    // Give Unity a moment to report it is ready to be resized.
-                    for (int i = 0; i < 40; i++)
-                    {
-                        if ((((int)GetWindowLongPtr(child, GWL_USERDATA)) & UNITY_READY) == 1) break;
-                        Thread.Sleep(150);
-                    }
-                }
-
-                Dispatcher.Invoke(() =>
-                {
-                    if (child == IntPtr.Zero)
-                    {
-                        LogRow(LogType.Error,
-                            "[SpeakerSystem] no UnityWndClass window owned by pid " + essPid +
-                            " appeared under the Spark window - it did not embed.");
-                        speakerSystemInfoPanel.Visibility = Visibility.Visible;
-                        startStopEchoSpeakerSystem.Content = Properties.Resources.Start_Echo_Speaker_System;
-                        startStopEchoSpeakerSystem.IsEnabled = true;
-                        return;
-                    }
-
-                    unityHWND = child;
-                    SetWindowLong(child, GWL_STYLE, WS_VISIBLE);
-                    MoveSpeakerSystemWindow();
-                    speakerSystemInstallLabel.Visibility = Visibility.Hidden;
-                    speakerSystemInfoPanel.Visibility = Visibility.Collapsed;
-                    startStopEchoSpeakerSystem.Content = Properties.Resources.Stop_Echo_Speaker_System;
-                    startStopEchoSpeakerSystem.IsEnabled = true;
-                });
-            });
+            }
+            echoMusicUpdateBar.Visibility = Visibility.Collapsed;
+            ShowEchoVRMusic();
         }
 
-        public IntPtr GetUnityHandler()
+        private async void echoMusicInstallButton_Click(object sender, RoutedEventArgs e)
         {
-            IntPtr unityHandle = IntPtr.Zero;
-            Dispatcher.Invoke(() =>
+            echoMusicInstallButton.IsEnabled = false;
+            echoMusicStatus.Text = "Installing...";
+            int code = await Task.Run(Program.InstallEchoVRMusic);
+            echoMusicStatus.Text = code switch
             {
-                WindowInteropHelper helper = new WindowInteropHelper(this);
-                HwndSource hwndSource = HwndSource.FromHwnd(helper.EnsureHandle());
-                if (hwndSource != null) unityHandle = hwndSource.Handle;
-                return unityHandle;
-            });
-            return unityHandle;
+                0 => "",
+                1 => "Echo VR isn't in that folder.",
+                2 => "Close Echo VR first, then press Install again.",
+                3 => "Couldn't download the plugin loader. Check your internet connection.",
+                4 => "Couldn't write to the Echo VR folder.",
+                _ => "EchoVRMusic is missing from Spark's install. Reinstall Spark.",
+            };
+            echoMusicInstallButton.IsEnabled = true;
+            if (code == 0) ShowEchoVRMusic();
         }
 
-        private void startStopEchoSpeakerSystem_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Spark's current colours, in the form EchoVRMusicSetup.exe takes (--theme, or WM_COPYDATA
+        /// while it runs), so the embedded window matches the theme.
+        /// </summary>
+        private static string EchoVRMusicTheme()
         {
-            if (!speakerSystemPanel.IsVisible) return;
+            static string Hex(string key)
+            {
+                return Application.Current.Resources[key] is SolidColorBrush b
+                    ? $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}"
+                    : null;
+            }
 
-            // HasExited throws on a Process that was never started, which used to happen
-            // after a failed launch and made the button dead until Spark was restarted.
-            bool notRunning;
+            (string name, string key)[] map =
+            {
+                ("bg", "ControlDarkerBackground"), ("surface", "SurfaceCard"), ("line", "SurfaceBorder"),
+                ("text", "TextPrimary"), ("muted", "TextDim"), ("accent", "ControlAccent"),
+            };
+            return string.Join(",", map.Select(m => (m.name, hex: Hex(m.key)))
+                .Where(m => m.hex != null)
+                .Select(m => $"{m.name}={m.hex}"));
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct COPYDATASTRUCT
+        {
+            public IntPtr dwData;
+            public int cbData;
+            public IntPtr lpData;
+        }
+
+        [DllImport("user32.dll", EntryPoint = "SendMessageW")]
+        private static extern IntPtr SendCopyData(IntPtr hWnd, int msg, IntPtr wParam, ref COPYDATASTRUCT data);
+
+        private const int WM_COPYDATA = 0x004A;
+        private const int ECHOVRMUSIC_THEME = 0x45564D54;   // "EVMT"
+        private bool echoMusicThemeHooked;
+
+        /// <summary>Sends the current theme to the running EchoVRMusic window.</summary>
+        private void SendEchoVRMusicTheme()
+        {
+            if (unityHWND == IntPtr.Zero) return;
+            string theme = EchoVRMusicTheme() + "\0";
+            IntPtr text = Marshal.StringToHGlobalUni(theme);
             try
             {
-                notRunning = SpeakerSystemProcess == null || SpeakerSystemProcess.HasExited;
+                COPYDATASTRUCT data = new COPYDATASTRUCT
+                {
+                    dwData = (IntPtr)ECHOVRMUSIC_THEME,
+                    cbData = theme.Length * 2,
+                    lpData = text,
+                };
+                SendCopyData(unityHWND, WM_COPYDATA, IntPtr.Zero, ref data);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(text);
+            }
+        }
+
+        /// <summary>
+        /// Starts EchoVRMusicSetup.exe as a child of this window (--embed) and puts it over the
+        /// Music panel. It shows its settings, and closes by itself when Spark does.
+        /// </summary>
+        private void StartEchoVRMusic()
+        {
+            bool running;
+            try
+            {
+                running = SpeakerSystemProcess != null && !SpeakerSystemProcess.HasExited;
             }
             catch (InvalidOperationException)
             {
-                notRunning = true;
+                running = false;
+            }
+            if (running)
+            {
+                if (unityHWND != IntPtr.Zero)
+                {
+                    ShowWindow(unityHWND, 1);
+                    MoveSpeakerSystemWindow();
+                }
+                return;
+            }
+
+            if (!echoMusicThemeHooked)
+            {
+                echoMusicThemeHooked = true;
+                ThemesController.ThemeApplied += () => Dispatcher.BeginInvoke(SendEchoVRMusicTheme);
+            }
+
+            try
+            {
+                IntPtr host = new WindowInteropHelper(this).EnsureHandle();
+                Process starting = new Process();
+                starting.StartInfo.FileName = Program.EchoVRMusicSetupPath;
+                starting.StartInfo.Arguments =
+                    $"--embed {host.ToInt64()} --dir \"{Program.EchoGameDir}\" --theme \"{EchoVRMusicTheme()}\"";
+                starting.StartInfo.UseShellExecute = false;
+                starting.Start();
+                SpeakerSystemProcess = starting;
+                int pid = starting.Id;
+                unityHWND = IntPtr.Zero;
+
+                // The window appears a moment after the process starts.
+                Task.Run(() =>
+                {
+                    IntPtr child = IntPtr.Zero;
+                    for (int i = 0; i < 50 && child == IntPtr.Zero; i++)
+                    {
+                        Thread.Sleep(100);
+                        try { child = FindSpeakerSystemChild(host, pid); }
+                        catch (Exception) { }
+                    }
+                    Dispatcher.Invoke(() =>
+                    {
+                        if (child == IntPtr.Zero)
+                        {
+                            LogRow(LogType.Error, $"[EchoVRMusic] no window from pid {pid} appeared under Spark's window");
+                            return;
+                        }
+                        unityHWND = child;
+                        MoveSpeakerSystemWindow();
+                        ShowWindow(child, speakerSystemPanel.IsVisible ? 1 : 0);
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                LogRow(LogType.Error, $"[EchoVRMusic] failed to start\n{ex}");
                 SpeakerSystemProcess = null;
-            }
-
-            if (notRunning)
-            {
-                Process starting = null;
-                try
-                {
-                    speakerSystemInstallLabel.Visibility = Visibility.Hidden;
-                    startStopEchoSpeakerSystem.IsEnabled = false;
-                    startStopEchoSpeakerSystem.Content = Properties.Resources.Stop_Echo_Speaker_System;
-
-                    string essPath = "C:\\Program Files (x86)\\Echo Speaker System\\Echo Speaker System.exe";
-                    if (!File.Exists(essPath))
-                    {
-                        throw new FileNotFoundException(
-                            "Echo Speaker System is not installed at " + essPath, essPath);
-                    }
-
-                    WindowInteropHelper helper = new WindowInteropHelper(this);
-                    HwndSource hwndSource = HwndSource.FromHwnd(helper.EnsureHandle());
-                    if (hwndSource == null)
-                    {
-                        // Used to be an empty if-body: nothing launched, the button stayed
-                        // disabled, and there was no clue why.
-                        throw new InvalidOperationException(
-                            "Could not obtain the Spark window handle to embed into.");
-                    }
-
-                    IntPtr unityHandle = hwndSource.Handle;
-                    // ToInt64: window handles are 64-bit on x64 and ToInt32 throws
-                    // OverflowException on any handle above the Int32 range.
-                    string args = "ignitebot -parentHWND " + unityHandle.ToInt64() +
-                                  " " + Environment.CommandLine;
-                    LogRow(LogType.Info, $"[SpeakerSystem] launching: {essPath} {args}");
-
-                    starting = new Process();
-                    starting.StartInfo.FileName = essPath;
-                    starting.StartInfo.Arguments = args;
-                    starting.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                    starting.StartInfo.CreateNoWindow = true;
-
-                    starting.Start();
-                    // Only publish the process once it actually started, so a failure
-                    // cannot leave an unstarted Process behind for HasExited to trip on.
-                    SpeakerSystemProcess = starting;
-                    SpeakerSystemProcess.WaitForInputIdle();
-                    // The Unity window takes over this area now.
-                    speakerSystemInfoPanel.Visibility = Visibility.Collapsed;
-                    SpeakerSystemStart(unityHandle);
-                }
-                catch (Exception ex)
-                {
-                    // This was silent, which is why nothing showed up in the log when the
-                    // embed failed.
-                    LogRow(LogType.Error, $"[SpeakerSystem] failed to start\n{ex}");
-                    try { if (starting != null && !starting.HasExited) starting.Kill(); } catch { }
-                    SpeakerSystemProcess = null;
-                    speakerSystemInfoPanel.Visibility = Visibility.Visible;
-                    startStopEchoSpeakerSystem.Content = Properties.Resources.Start_Echo_Speaker_System;
-                    startStopEchoSpeakerSystem.IsEnabled = true;
-                }
-            }
-            else
-            {
-                speakerSystemInstallLabel.Visibility = Visibility.Hidden;
-                Program.netMQEvents.CloseApp();
-                Thread.Sleep(800);
-                KillSpeakerSystem();
-                speakerSystemInfoPanel.Visibility = Visibility.Visible;
-                startStopEchoSpeakerSystem.Content = Properties.Resources.Start_Echo_Speaker_System;
-                startStopEchoSpeakerSystem.IsEnabled = true;
             }
         }
 
@@ -3621,12 +3612,154 @@ namespace Spark
 
         private void showOverlay_Click(object sender, RoutedEventArgs e)
         {
-            tryingToShowGameOverlay = !tryingToShowGameOverlay;
+            SparkSettings.instance.spectatorOverlayEnabled = !SparkSettings.instance.spectatorOverlayEnabled;
+            SparkSettings.instance.Save();
 
-            // close the overlay if it's open
-            if (Program.GetWindowIfOpen(typeof(GameOverlay)) != null)
+            // apply right away instead of waiting for the controller's next check
+            Program.spectatorOverlayController?.Refresh();
+            ClickableOverlaySubtitle.Text = SparkSettings.instance.spectatorOverlayEnabled
+                ? (Program.GetWindowIfOpen(typeof(GameOverlay)) != null ? Properties.Resources.Active : Properties.Resources.Echo_VR_not_active)
+                : Properties.Resources.Not_active;
+        }
+
+        // ───── overlay picker ─────
+
+        private static readonly (string name, string url)[] BuiltInOverlays =
+        {
+            ("Spark Arena", "/arena_overlay"),
+            ("Configurable overlay", "/configurable_overlay"),
+            ("Full overlay", "/full_overlay"),
+            ("Midmatch overlay", "/midmatch_overlay"),
+            ("Minimap only", "/components/minimap"),
+        };
+
+        private bool populatingOverlayPicker;
+
+        private void PopulateOverlayPicker()
+        {
+            populatingOverlayPicker = true;
+            try
             {
-                Program.ToggleWindow(typeof(GameOverlay));
+                string current = SparkSettings.instance.gameOverlayUrl ?? "";
+                OverlayPicker.Items.Clear();
+
+                void Add(string name, string url)
+                {
+                    if (OverlayPicker.Items.Cast<ComboBoxItem>().Any(i => SameOverlay((string)i.Tag, url))) return;
+                    OverlayPicker.Items.Add(new ComboBoxItem { Content = name, Tag = url, ToolTip = url });
+                }
+
+                foreach ((string name, string url) in BuiltInOverlays) Add(name, url);
+
+                // your own overlays: .html files in the Overlays folder are served at /<name>
+                try
+                {
+                    if (Directory.Exists(OverlayServer.StaticOverlayFolder))
+                    {
+                        foreach (string file in Directory.EnumerateFiles(OverlayServer.StaticOverlayFolder, "*.html", SearchOption.TopDirectoryOnly).OrderBy(f => f))
+                        {
+                            string n = Path.GetFileNameWithoutExtension(file);
+                            if (n == "index") continue;
+                            Add(n + " (my overlay)", "/" + n);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.LogRow(Logger.LogType.Error, $"Couldn't list custom overlays: {e.Message}");
+                }
+
+                // URLs typed in before
+                foreach (string url in SparkSettings.instance.gameOverlayCustomUrls ?? new List<string>()) Add(url, url);
+                if (!string.IsNullOrWhiteSpace(current)) Add(current, current);
+
+                OverlayPicker.SelectedItem = OverlayPicker.Items.Cast<ComboBoxItem>().FirstOrDefault(i => SameOverlay((string)i.Tag, current));
+            }
+            finally
+            {
+                populatingOverlayPicker = false;
+            }
+        }
+
+        private static string NormalizeOverlayUrl(string url)
+        {
+            url = (url ?? "").Trim();
+            if (url.StartsWith("http://localhost:6724/", StringComparison.OrdinalIgnoreCase)) url = url["http://localhost:6724".Length..];
+            if (url.StartsWith("http://127.0.0.1:6724/", StringComparison.OrdinalIgnoreCase)) url = url["http://127.0.0.1:6724".Length..];
+            return url.TrimEnd('/').ToLowerInvariant();
+        }
+
+        private static bool SameOverlay(string a, string b) => NormalizeOverlayUrl(a) == NormalizeOverlayUrl(b);
+
+        private void SetOverlayUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url) || SameOverlay(url, SparkSettings.instance.gameOverlayUrl)) return;
+            SparkSettings.instance.gameOverlayUrl = url;
+            SparkSettings.instance.Save();
+            Program.spectatorOverlayController?.Reload();
+        }
+
+        private void OverlayPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (populatingOverlayPicker) return;
+            if (OverlayPicker.SelectedItem is ComboBoxItem item) SetOverlayUrl((string)item.Tag);
+        }
+
+        private void OverlayPicker_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter) CommitTypedOverlay();
+        }
+
+        private void OverlayPicker_LostFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            CommitTypedOverlay();
+        }
+
+        private void OverlayPicker_DropDownOpened(object sender, EventArgs e)
+        {
+            // pick up overlay files added since the window opened
+            PopulateOverlayPicker();
+        }
+
+        /// <summary>Accepts whatever was typed: a URL, a path on this server, or a local .html file.</summary>
+        private void CommitTypedOverlay()
+        {
+            if (populatingOverlayPicker) return;
+            string text = OverlayPicker.Text?.Trim();
+            if (string.IsNullOrEmpty(text)) return;
+
+            // the text of an existing entry: that entry's URL
+            ComboBoxItem match = OverlayPicker.Items.Cast<ComboBoxItem>().FirstOrDefault(i => (string)i.Content == text);
+            if (match != null)
+            {
+                SetOverlayUrl((string)match.Tag);
+                return;
+            }
+
+            string url = text;
+            if (File.Exists(text)) url = new Uri(Path.GetFullPath(text)).AbsoluteUri;
+            else if (!url.Contains("://") && !url.StartsWith('/')) url = (url.Contains('.') && !url.EndsWith(".html") ? "https://" : "/") + url;
+
+            SparkSettings.instance.gameOverlayCustomUrls ??= new List<string>();
+            if (!SparkSettings.instance.gameOverlayCustomUrls.Any(u => SameOverlay(u, url)) && !BuiltInOverlays.Any(b => SameOverlay(b.url, url)))
+            {
+                SparkSettings.instance.gameOverlayCustomUrls.Add(url);
+            }
+
+            SetOverlayUrl(url);
+            PopulateOverlayPicker();
+        }
+
+        private void OpenOverlayFolder_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Directory.CreateDirectory(OverlayServer.StaticOverlayFolder);
+                Process.Start(new ProcessStartInfo("explorer.exe", $"\"{OverlayServer.StaticOverlayFolder}\"") { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogRow(Logger.LogType.Error, $"Couldn't open overlay folder: {ex.Message}");
             }
         }
 

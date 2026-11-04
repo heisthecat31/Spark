@@ -16,6 +16,12 @@ namespace Spark
 		public static ThemeTypes CurrentTheme { get; set; }
 
 		/// <summary>
+		/// Raised after every <see cref="ApplyCustomTheme"/>, live previews included, for things
+		/// outside WPF's resource system that copy the colours (the EchoVRMusic window in the Music tab).
+		/// </summary>
+		public static event Action ThemeApplied;
+
+		/// <summary>
 		/// The three colours actually applied right now — not necessarily what's saved. A preset
 		/// click or a slider drag calls <see cref="ApplyCustomTheme"/> to live-preview instantly
 		/// without touching <see cref="SparkSettings"/>; only a separate Apply/Save action persists.
@@ -104,6 +110,7 @@ namespace Spark
 			SetBrush("ControlRowBorder2",                         midDark);
 
 			ApplyDerivedPalette(dark, mid, light);
+			ThemeApplied?.Invoke();
 		}
 
 		/// <summary>
