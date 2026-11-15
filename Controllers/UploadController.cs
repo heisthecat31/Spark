@@ -81,7 +81,7 @@ namespace Spark
 				hash = sb.ToString().ToLower();
 			}
 
-			if (SparkSettings.instance.uploadToIgniteDB || DiscordOAuth.AccessCode.series_name.Contains("vrml"))
+			if (SparkSettings.instance.uploadToIgniteDB)
 			{
 				_ = DoUploadMatchBatchIgniteDB(dataString, hash, round.frame.client_name);
 			}

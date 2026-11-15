@@ -356,6 +356,9 @@ namespace Spark
 
             SetDashboardItem1Visibility(SparkSettings.instance.dashboardItem1);
 
+            EchoReplayManager.StatusChanged += () => Dispatcher.BeginInvoke(RefreshReplayViewerBadge);
+            RefreshReplayViewerBadge();
+
             _ = Task.Run(async () =>
             {
                 AppUpdater.UpdateInfo update = await AppUpdater.CheckForUpdatesAsync();
@@ -691,19 +694,9 @@ namespace Spark
                         RefreshHistoryIfChanged();
                         ServerScoreLabel.Text = FormatServerScore();
 
-                        if (blueLogo != Program.CurrentRound.teams[Team.TeamColor.blue].vrmlTeamLogo)
-                        {
-                            blueLogo = Program.CurrentRound.teams[Team.TeamColor.blue].vrmlTeamLogo;
-                            blueTeamLogo.Source = string.IsNullOrEmpty(blueLogo) ? null : new BitmapImage(new Uri(blueLogo));
-                            blueTeamLogo.ToolTip = Program.CurrentRound.teams[Team.TeamColor.blue].vrmlTeamName;
-                        }
-
-                        if (orangeLogo != Program.CurrentRound.teams[Team.TeamColor.orange].vrmlTeamLogo)
-                        {
-                            orangeLogo = Program.CurrentRound.teams[Team.TeamColor.orange].vrmlTeamLogo;
-                            orangeTeamLogo.Source = string.IsNullOrEmpty(orangeLogo) ? null : new BitmapImage(new Uri(orangeLogo));
-                            orangeTeamLogo.ToolTip = Program.CurrentRound.teams[Team.TeamColor.orange].vrmlTeamName;
-                        }
+                        // league team (EML for Arena, ECGL for Combat) beside BLUE / ORANGE
+                        UpdateLeagueTeamLogo(blueTeamLogo, Program.CurrentRound.teams[Team.TeamColor.blue].leagueTeam, ref blueLogo);
+                        UpdateLeagueTeamLogo(orangeTeamLogo, Program.CurrentRound.teams[Team.TeamColor.orange].leagueTeam, ref orangeLogo);
 
 
                         #region Rejoiner
@@ -2261,12 +2254,52 @@ namespace Spark
             }
         }
 
-        private void ClickedOnPlayer(string playerName)
+        /// <summary>
+        /// Shows a side's league team logo (name as the tooltip). Clicking it opens the team's page.
+        /// </summary>
+        private static void UpdateLeagueTeamLogo(Image image, LeagueTeam team, ref string shownKey)
         {
-            Process.Start(new ProcessStartInfo("https://echovrce.com")
+            team ??= LeagueTeam.None;
+            string key = team.name + "|" + team.logo;
+            if (key == shownKey) return;
+            shownKey = key;
+
+            image.Source = Uri.TryCreate(team.logo, UriKind.Absolute, out Uri logo) ? new BitmapImage(logo) : null;
+            image.ToolTip = team.IsEmpty ? null : team.name;
+            image.Tag = team.url;
+            image.Cursor = string.IsNullOrEmpty(team.url) ? null : Cursors.Hand;
+        }
+
+        private void LeagueTeamLogoClicked(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement { Tag: string url } && !string.IsNullOrEmpty(url))
             {
-                UseShellExecute = true
-            });
+                OpenExternalLink(url);
+            }
+        }
+
+        /// <summary>
+        /// Opens the player's league page: EML for Arena, ECGL for Combat.
+        /// </summary>
+        private async void ClickedOnPlayer(string playerName)
+        {
+            bool combat = Program.lastFrame?.InCombat ?? false;
+            string league = combat ? "ECGL" : "EML";
+            try
+            {
+                string url = await Leagues.PlayerPage(playerName, combat);
+                if (string.IsNullOrEmpty(url))
+                {
+                    new MessageBox($"{playerName} isn't registered with {league}.", Properties.Resources.Error).Show();
+                    return;
+                }
+
+                OpenExternalLink(url);
+            }
+            catch (Exception ex)
+            {
+                LogRow(LogType.Error, $"Can't open {league} player page: {ex}");
+            }
         }
 
 
@@ -2332,8 +2365,6 @@ namespace Spark
             AccessCodesComboboxLiveWindow.Visibility = DiscordOAuth.availableAccessCodes.Count < 2 ? Visibility.Collapsed : Visibility.Visible;
 
             casterToolsBox.Visibility = !DiscordOAuth.Personal ? Visibility.Visible : Visibility.Collapsed;
-            PasteLinkInLiveButton.Visibility = DiscordOAuth.AccessCode?.series_name.Contains("vrml") ?? false ? Visibility.Visible : Visibility.Collapsed;
-            MatchSetupButton.Visibility = DiscordOAuth.AccessCode?.series_name.Contains("vrml") ?? false ? Visibility.Visible : Visibility.Collapsed;
 
             accessCodeDropdownListenerActive = true;
         }
@@ -3796,36 +3827,9 @@ namespace Spark
             }
         }
 
-        private async void PasteLinkInLive(object sender, RoutedEventArgs e)
-        {
-            if (Program.lastFrame == null) return;
-            try
-            {
-                Process.Start(new ProcessStartInfo("discord://discordapp.com/channels/776209623857889361/794763716645355560") { UseShellExecute = true });
-                Clipboard.SetText(Program.CurrentSparkLink(Program.lastFrame.sessionid));
-                await Task.Delay(1000);
-                Keyboard.SendKey(Keyboard.DirectXKeyStrokes.DIK_LCONTROL, false, Keyboard.InputType.Keyboard);
-                await Task.Delay(10);
-                Keyboard.SendKey(Keyboard.DirectXKeyStrokes.DIK_V, false, Keyboard.InputType.Keyboard);
-                await Task.Delay(10);
-                Keyboard.SendKey(Keyboard.DirectXKeyStrokes.DIK_V, true, Keyboard.InputType.Keyboard);
-                await Task.Delay(10);
-                Keyboard.SendKey(Keyboard.DirectXKeyStrokes.DIK_LCONTROL, true, Keyboard.InputType.Keyboard);
-            }
-            catch (Exception ex)
-            {
-                LogRow(LogType.Error, ex.ToString());
-            }
-        }
-
         private void DefaultMatchSetupClick(object sender, RoutedEventArgs e)
         {
             OpenWebpage("http://localhost:6724/overlays/match_setup");
-        }
-
-        private void MatchSetupClick(object sender, RoutedEventArgs e)
-        {
-            OpenWebpage("http://localhost:6724/" + DiscordOAuth.AccessCode.series_name.Split('_')[0] + "/match_setup");
         }
 
         private void LeagueOverlaysClick(object sender, RoutedEventArgs e)
@@ -3926,84 +3930,52 @@ namespace Spark
             });
         }
 
+        /// <summary>
+        /// Opens EchoReplay Viewer, downloading it (or the newer release) from the EchoReplay repo first.
+        /// </summary>
         private async void ReplayViewer_Click(object sender, RoutedEventArgs e)
         {
-            await LaunchInstallReplayViewer(false);
-        }
-
-        private async Task LaunchInstallReplayViewer(bool vrMode)
-        {
-            string versionFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "Replay Viewer", "version.txt");
-
-            VersionJson remoteVersion = await GetGitHubVersion("robidasdavid", "Demo-Viewer");
-            if (remoteVersion == null)
-            {
-                Error("Failed to get Replay Viewer version from GitHub.");
-                return;
-            }
-
-            if (File.Exists(versionFile))
-            {
-                string localVersion = await File.ReadAllTextAsync(versionFile);
-                if (localVersion != remoteVersion.tag_name)
-                {
-                    await InstallReplayViewer(versionFile, remoteVersion);
-                }
-            }
-            else
-            {
-                await InstallReplayViewer(versionFile, remoteVersion);
-            }
-
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Replay Viewer", "Replay Viewer.exe"),
-                Arguments = vrMode ? " -useVR" : "",
-                UseShellExecute = true
-            });
-        }
-
-        private async Task InstallReplayViewer(string versionFile, VersionJson remoteVersion)
-        {
+            ReplayViewerButton.IsEnabled = false;
             ReplayViewerProgressBar.Visibility = Visibility.Visible;
-            string zipUrl = remoteVersion.assets.First(url => url.browser_download_url.EndsWith("zip")).browser_download_url;
-            HttpResponseMessage response = await FetchUtils.client.GetAsync(zipUrl);
-            string fileName = Path.Combine(Path.GetTempPath(), "replay_viewer.zip");
-            await using (FileStream fs = new FileStream(fileName, FileMode.Create))
-            {
-                await response.Content.CopyToAsync(fs);
-            }
-
-            string replayViewerFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Replay Viewer");
-            if (!Directory.Exists(replayViewerFolder))
-            {
-                Directory.CreateDirectory(replayViewerFolder);
-            }
-
-            await Task.Run(() => Directory.Delete(replayViewerFolder, true));
-            await Task.Run(() => ZipFile.ExtractToDirectory(fileName, replayViewerFolder));
-            await File.WriteAllTextAsync(versionFile, remoteVersion.tag_name);
-            ReplayViewerProgressBar.Visibility = Visibility.Collapsed;
-        }
-
-        private static async Task<VersionJson> GetGitHubVersion(string authorName, string repoName)
-        {
             try
             {
-                string resp = await FetchUtils.client.GetStringAsync($"https://api.github.com/repos/{authorName}/{repoName}/releases/latest");
-                return JsonConvert.DeserializeObject<VersionJson>(resp);
+                string error = await EchoReplayManager.InstallOrUpdateAsync(true);
+                if (!File.Exists(EchoReplayManager.ViewerExePath))
+                {
+                    new MessageBox(error ?? "EchoReplay Viewer isn't in the latest EchoReplay release.", Properties.Resources.Error).Show();
+                    return;
+                }
+
+                if (error != null) LogRow(LogType.Error, "[EchoReplay] " + error);
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = EchoReplayManager.ViewerExePath,
+                    WorkingDirectory = EchoReplayManager.ViewerDir,
+                    UseShellExecute = true
+                });
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                LogRow(LogType.Error, e.Message);
-                return null;
+                LogRow(LogType.Error, $"Couldn't open EchoReplay Viewer\n{ex}");
+                new MessageBox("Couldn't open EchoReplay Viewer: " + ex.Message, Properties.Resources.Error).Show();
+            }
+            finally
+            {
+                ReplayViewerProgressBar.Visibility = Visibility.Collapsed;
+                ReplayViewerButton.IsEnabled = true;
+                RefreshReplayViewerBadge();
             }
         }
 
-        private async void ReplayViewerVR_Click(object sender, RoutedEventArgs e)
+        /// <summary>Shows "Update" on the Replay viewer button when a newer EchoReplay release is out.</summary>
+        private void RefreshReplayViewerBadge()
         {
-            await LaunchInstallReplayViewer(true);
+            bool update = EchoReplayManager.ViewerUpdateAvailable;
+            ReplayViewerUpdateBadge.Visibility = update ? Visibility.Visible : Visibility.Collapsed;
+            ReplayViewerButton.ToolTip = update
+                ? $"EchoReplay {EchoReplayManager.LatestVersion} is out (you have {EchoReplayManager.ViewerVersion}). Click to update and open the viewer."
+                : "EchoReplay Viewer: watch .echodemo recordings without the game";
         }
     }
 }

@@ -17,9 +17,6 @@ namespace Spark
 {
 	public static class SparkAPI
 	{
-		private static readonly object vrmlClientLock = new object();
-		private static HttpClient vrmlAPIClient;
-		private static Dictionary<string, (DateTime, string)> vrmlAPICache = new Dictionary<string, (DateTime, string)>();
 
 		public static void MapRoutes(IEndpointRouteBuilder endpoints)
 		{
@@ -462,41 +459,37 @@ namespace Spark
 			});
 
 
-			endpoints.MapGet("/api/vrml_api/{**route}", async context =>
+			// EML (Arena) teams with logos, pages and rosters. Refreshed from the EML site every 30 minutes.
+			endpoints.MapGet("/api/eml/teams", async context =>
 			{
 				try
 				{
 					context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
 					context.Response.Headers.Append("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
+					EmlDirectory eml = await Leagues.GetEml();
+					await context.Response.WriteAsJsonAsync(eml.TeamList());
+				}
+				catch (Exception e)
+				{
+					Logger.LogRow(Logger.LogType.Error, $"{e}");
+				}
+			});
 
-					// initialize
-					if (vrmlAPIClient == null)
+			// The league page of a player: EML for Arena, ECGL for Combat (?combat=true).
+			endpoints.MapGet("/api/league/player_page/{name}", async context =>
+			{
+				try
+				{
+					context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+					string name = context.Request.RouteValues["name"]?.ToString() ?? "";
+					bool combat = context.Request.Query["combat"] == "true";
+					string url = await Leagues.PlayerPage(name, combat);
+					await context.Response.WriteAsJsonAsync(new Dictionary<string, object>
 					{
-						lock (vrmlClientLock)
-						{
-							vrmlAPIClient = new HttpClient();
-							vrmlAPIClient.DefaultRequestHeaders.Add("version", Program.AppVersionString());
-							vrmlAPIClient.DefaultRequestHeaders.Add("User-Agent", "Spark/" + Program.AppVersionString());
-							vrmlAPIClient.BaseAddress = new Uri("https://apiignite.vrmasterleague.com/");
-						}
-					}
-
-					string request = context.Request.GetEncodedUrl();
-					request = request[(request.IndexOf("vrml_api", StringComparison.Ordinal) + "vrml_api".Length)..];
-					if (request == null) return;
-					if (!vrmlAPICache.ContainsKey(request) || DateTime.UtcNow - vrmlAPICache[request].Item1 >= TimeSpan.FromMinutes(30))
-					{
-						string ret = await vrmlAPIClient.GetStringAsync(request);
-						vrmlAPICache[request] = (DateTime.UtcNow, ret);
-					}
-
-					string val = vrmlAPICache[request].Item2;
-					if (val.StartsWith("{") || val.StartsWith("["))
-					{
-						context.Response.Headers.Append("Content-Type", "application/json");
-					}
-
-					await context.Response.WriteAsync(val);
+						{ "player_name", name },
+						{ "league", combat ? "ecgl" : "eml" },
+						{ "url", url ?? "" },
+					});
 				}
 				catch (Exception e)
 				{

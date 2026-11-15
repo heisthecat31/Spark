@@ -265,7 +265,7 @@ paths:
       parameters:
         - name: "source"
           in: "path"
-          description: "The index of the source. 0 for manual, 1 for VRML API"
+          description: "The index of the source. 0 for manual, 1 for the league rosters (EML for Arena, ECGL for Combat)"
           required: true
           example: 0
           schema:
@@ -295,20 +295,33 @@ paths:
   
   
   
-  /api/vrml_api/{route}:
+  /api/eml/teams:
     get:
       tags:
         - Overlays
-      summary: A local proxy for the VRML API at apiignite.vrmasterleague.com. This has a local cache of 30 minutes, so it can be much faster for repeated requests.
-      
+      summary: Every active Echo Master League (Arena) team with its logo, page and roster, from the EML site. Refreshed every 30 minutes.
+      responses:
+        '200':
+          description: Success
+  
+  /api/league/player_page/{name}:
+    get:
+      tags:
+        - Overlays
+      summary: A player's league page, EML for Arena or ECGL for Combat (combat=true). url is empty when they aren't registered.
       parameters:
-        - name: "route"
+        - name: "name"
           in: "path"
-          description: "The VRML API path to be fetched"
+          description: "The player's in-game name"
           required: true
-          example: "EchoArena/Casters"
           schema:
             type: "string"
+        - name: "combat"
+          in: "query"
+          description: "true to look the player up on ECGL instead of EML"
+          required: false
+          schema:
+            type: "boolean"
       responses:
         '200':
           description: Success

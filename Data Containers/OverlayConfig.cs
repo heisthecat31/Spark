@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using EchoVRAPI;
@@ -40,116 +40,67 @@ namespace Spark
 					}
 				},
 				{ "team_names_source", SparkSettings.instance.overlaysTeamSource },
+				{ "auto_eml_teams", SparkSettings.instance.overlaysAutoEmlTeams },
 				{
 					"teams", new[]
 					{
-						new Dictionary<string, object>()
-						{
-							{
-								"vrml_team_name",
-								Program.CurrentRound.teams[Team.TeamColor.blue].vrmlTeamName ?? ""
-							},
-							{
-								"vrml_team_logo",
-								Program.CurrentRound.teams[Team.TeamColor.blue].vrmlTeamLogo ?? ""
-							},
-							{
-								"team_name",
-								GetOverlayTeamName(Team.TeamColor.blue)
-							},
-							{
-								"team_logo",
-								GetOverlayTeamLogo(Team.TeamColor.blue)
-							},
-						},
-						new Dictionary<string, object>()
-						{
-							{
-								"vrml_team_name",
-								Program.CurrentRound.teams[Team.TeamColor.orange].vrmlTeamName ?? ""
-							},
-							{
-								"vrml_team_logo",
-								Program.CurrentRound.teams[Team.TeamColor.orange].vrmlTeamLogo ?? ""
-							},
-							{
-								"team_name",
-								GetOverlayTeamName(Team.TeamColor.orange)
-							},
-							{
-								"team_logo",
-								GetOverlayTeamLogo(Team.TeamColor.orange)
-							},
-						}
+						TeamDict(Program.CurrentRound, Team.TeamColor.blue),
+						TeamDict(Program.CurrentRound, Team.TeamColor.orange),
 					}
 				}
 			};
 		}
 
-		public static string GetOverlayTeamName(Team.TeamColor team)
+		/// <summary>
+		/// One side's names for the overlays: the league team found from the rosters (EML for Arena,
+		/// ECGL for Combat) and the name/logo the overlays should show.
+		/// </summary>
+		public static Dictionary<string, object> TeamDict(AccumulatedFrame round, Team.TeamColor color)
 		{
-			switch (team)
+			LeagueTeam league = round?.teams[color]?.leagueTeam ?? LeagueTeam.None;
+			(string name, string logo) = GetOverlayTeam(round, color);
+			return new Dictionary<string, object>
 			{
-				case Team.TeamColor.blue:
-					switch (SparkSettings.instance.overlaysTeamSource)
-					{
-						case 0:
-							return SparkSettings.instance.overlaysManualTeamNameBlue;
-						case 1:
-							return Program.CurrentRound.teams[Team.TeamColor.blue]?.vrmlTeamName;
-					}
-
-					break;
-				case Team.TeamColor.orange:
-					switch (SparkSettings.instance.overlaysTeamSource)
-					{
-						case 0:
-							return SparkSettings.instance.overlaysManualTeamNameOrange;
-						case 1:
-							return Program.CurrentRound.teams[Team.TeamColor.orange]?.vrmlTeamName;
-					}
-
-					break;
-				case Team.TeamColor.spectator:
-				default:
-					Logger.LogRow(Logger.LogType.Error, "Can't get team name from spectator team");
-					break;
-			}
-
-			return "";
+				{ "eml_team_name", league.name ?? "" },
+				{ "eml_team_logo", league.logo ?? "" },
+				{ "eml_team_url", league.url ?? "" },
+				{ "team_name", name ?? "" },
+				{ "team_logo", logo ?? "" },
+			};
 		}
 
-		public static string GetOverlayTeamLogo(Team.TeamColor team)
+		/// <summary>
+		/// The name and logo the overlays show for one side: typed in (source 0) or found on the league
+		/// rosters (source 1). With <see cref="SparkSettings.overlaysAutoEmlTeams"/>, a side made up
+		/// entirely of one league team shows that team even when the names are typed in.
+		/// </summary>
+		public static (string name, string logo) GetOverlayTeam(AccumulatedFrame round, Team.TeamColor color)
 		{
-			switch (team)
+			if (color == Team.TeamColor.spectator)
 			{
-				case Team.TeamColor.blue:
-					switch (SparkSettings.instance.overlaysTeamSource)
-					{
-						case 0:
-							return SparkSettings.instance.overlaysManualTeamLogoBlue;
-						case 1:
-							return Program.CurrentRound.teams[Team.TeamColor.blue]?.vrmlTeamLogo;
-					}
-
-					break;
-				case Team.TeamColor.orange:
-					switch (SparkSettings.instance.overlaysTeamSource)
-					{
-						case 0:
-							return SparkSettings.instance.overlaysManualTeamLogoOrange;
-						case 1:
-							return Program.CurrentRound.teams[Team.TeamColor.orange]?.vrmlTeamLogo;
-					}
-
-					break;
-				case Team.TeamColor.spectator:
-				default:
-					Logger.LogRow(Logger.LogType.Error, "Can't get team name from spectator team");
-					break;
+				Logger.LogRow(Logger.LogType.Error, "Can't get team name from spectator team");
+				return ("", "");
 			}
 
-			return "";
+			LeagueTeam league = round?.teams[color]?.leagueTeam ?? LeagueTeam.None;
+			if (SparkSettings.instance.overlaysAutoEmlTeams && league.full && !league.IsEmpty)
+			{
+				return (league.name, league.logo);
+			}
+
+			bool blue = color == Team.TeamColor.blue;
+			return SparkSettings.instance.overlaysTeamSource switch
+			{
+				0 => blue
+					? (SparkSettings.instance.overlaysManualTeamNameBlue, SparkSettings.instance.overlaysManualTeamLogoBlue)
+					: (SparkSettings.instance.overlaysManualTeamNameOrange, SparkSettings.instance.overlaysManualTeamLogoOrange),
+				1 => (league.name, league.logo),
+				_ => ("", ""),
+			};
 		}
+
+		public static string GetOverlayTeamName(Team.TeamColor team) => GetOverlayTeam(Program.CurrentRound, team).name;
+
+		public static string GetOverlayTeamLogo(Team.TeamColor team) => GetOverlayTeam(Program.CurrentRound, team).logo;
 	}
 }

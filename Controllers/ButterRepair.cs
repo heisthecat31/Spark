@@ -34,7 +34,7 @@ namespace Spark
 		public bool IsPartial => FailedChunks > 0 || TruncatedTail;
 	}
 
-	public enum ReplayFormat { Unknown, EchoReplay, Butter, Tape }
+	public enum ReplayFormat { Unknown, EchoReplay, Butter, Tape, EchoDemo }
 
 	/// <summary>
 	/// Rescues a .butter file the replay viewer refuses to open, by re-reading it with the

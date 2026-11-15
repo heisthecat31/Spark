@@ -97,6 +97,7 @@ namespace Spark
 				{ "match_time", matchData.MatchTimeSQL },
 				{ "player_id", Id },
 				{ "player_name", Name },
+				{ "eml_player_url", EmlDirectory.PlayerUrl(Name) },
 				{ "level", Level },
 				{ "player_number", Number },
 				{ "team_color", TeamColor.ToString() },

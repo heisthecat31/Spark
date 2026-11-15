@@ -1,8 +1,8 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using EchoVRAPI;
-using Newtonsoft.Json;
 
 namespace Spark
 {
@@ -11,54 +11,45 @@ namespace Spark
 	/// </summary>
 	public class TeamData
 	{
-		public string vrmlTeamName = "";
-		public string vrmlTeamLogo = "";
-		
+		/// <summary>The league team this side belongs to: EML in Arena, ECGL in Combat.</summary>
+		public LeagueTeam leagueTeam = LeagueTeam.None;
+
+		public string leagueTeamName => leagueTeam.name;
+		public string leagueTeamLogo => leagueTeam.logo;
+		public string leagueTeamUrl => leagueTeam.url;
+
+		/// <summary>Bumped on every lookup so a late answer for an older roster is dropped.</summary>
+		private int lookupId;
+
+		/// <summary>
+		/// Looks this side's players up on the league rosters (EML for Arena, ECGL for Combat). At
+		/// least two players from the same team make it that team; otherwise the name is cleared.
+		/// </summary>
 		public void FindTeamNamesFromPlayerList(Team team)
 		{
-			//if (frame.private_match)
+			if (team == null) return;
+			List<string> names = team.players.Select(p => p.name).Where(n => !string.IsNullOrEmpty(n)).ToList();
+			bool combat = Program.lastFrame?.InCombat ?? false;
+			int id = ++lookupId;
+
+			if (names.Count < 2)
 			{
-				if (team.players.Count > 0)
-				{
-					FetchUtils.GetRequestCallback($"{Program.APIURL}/vrml/get_team_name_from_list?player_list=[{string.Join(',', team.player_names.Select(name => $"\"{name}\""))}]",
-						new Dictionary<string, string> { { "x-api-key", DiscordOAuth.igniteUploadKey } },
-						returnJSON =>
-						{
-							try
-							{
-								if (!string.IsNullOrEmpty(returnJSON))
-								{
-									Dictionary<string, string> data = JsonConvert.DeserializeObject<Dictionary<string, string>>(returnJSON);
-									if (data != null)
-									{
-										// if there are at least 2 players from that team
-										if (data.ContainsKey("count") && int.Parse(data["count"]) >= 2)
-										{
-											vrmlTeamName = data["team_name"];
-											vrmlTeamLogo = data["team_logo"];
-										}
-										else // reset the names if people leave
-										{
-											vrmlTeamName = string.Empty;
-											vrmlTeamLogo = string.Empty;
-										}
-									}
-									else
-									{
-										Logger.LogRow(Logger.LogType.Error, $"Null team detection response.");
-									}
-								}
-							}
-							catch (Exception ex)
-							{
-								Logger.LogRow(Logger.LogType.Error, $"Can't parse get_team_name_from_list response: {ex}");
-							}
-						}
-					);
-				}
+				leagueTeam = LeagueTeam.None;
+				return;
 			}
+
+			Task.Run(async () =>
+			{
+				try
+				{
+					LeagueTeam found = await Leagues.FindTeam(names, combat);
+					if (id == lookupId) leagueTeam = found;
+				}
+				catch (Exception ex)
+				{
+					Logger.LogRow(Logger.LogType.Error, $"Can't look up league team: {ex}");
+				}
+			});
 		}
-
 	}
-
 }

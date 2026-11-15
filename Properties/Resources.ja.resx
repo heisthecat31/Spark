@@ -830,8 +830,8 @@ Riftでは、Windowsのデフォルトのサウンド出力をRiftのヘッド�
   <data name="Angle brackes allow you to click on the link when it's pasted in Discord." xml:space="preserve">
     <value>大なり小なりを使うことによりDiscordに張り付けられた際にリンクをクリックすることが可能</value>
   </data>
-  <data name="Appends the team names of the participating teams if enough players from the same VRML team are in the match." xml:space="preserve">
-    <value>同じVRMLチームに所属しているプレイヤーが多い場合、チームの表示にチーム名を追加</value>
+  <data name="Appends the team names of the participating teams if enough players from the same EML team are in the match." xml:space="preserve">
+    <value>同じEMLチームに所属しているプレイヤーが多い場合、チームの表示にチーム名を追加</value>
   </data>
   <data name="Auto-connect" xml:space="preserve">
     <value>自動接続</value>

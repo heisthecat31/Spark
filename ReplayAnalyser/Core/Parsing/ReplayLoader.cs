@@ -22,13 +22,14 @@ namespace Spark.ReplayAnalyser.Parsing;
 /// </summary>
 public static class ReplayLoader
 {
-    public static readonly string[] SupportedExtensions = { ".echoreplay", ".butter", ".tape" };
+    public static readonly string[] SupportedExtensions = { ".echodemo", ".echoreplay", ".butter", ".tape" };
 
     public static ReplayFormat DetectFormat(string path)
     {
         string ext = Path.GetExtension(path).ToLowerInvariant();
         return ext switch
         {
+            ".echodemo" => ReplayFormat.EchoDemo,
             ".echoreplay" => ReplayFormat.EchoReplay,
             ".butter" => ReplayFormat.Butter,
             ".tape" => ReplayFormat.Tape,
@@ -44,6 +45,7 @@ public static class ReplayLoader
             return format switch
             {
                 ReplayFormat.Butter => ButterV3Reader.Read(File.ReadAllBytes(path), path),
+                ReplayFormat.EchoDemo => EchoDemoReader.Read(path),
                 ReplayFormat.EchoReplay => ReadEchoReplay(path, ct),
                 ReplayFormat.Tape => ReadTape(path),
                 _ => Failed(path, format, "Unrecognised file extension."),

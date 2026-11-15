@@ -28,6 +28,8 @@ public sealed class PlayerSummary
     public int Assists { get; set; }
     public int Saves { get; set; }
     public int Stuns { get; set; }
+    public int Steals { get; set; }
+    public int Interceptions { get; set; }
     public int Passes { get; set; }
     /// <summary>Handovers counted from the disc changing hands, for matches reporting no passes.</summary>
     public int Handovers { get; set; }
@@ -121,6 +123,8 @@ public sealed class MatchSummary
             Assists = p.Assists,
             Saves = p.Saves,
             Stuns = p.Stuns,
+            Steals = p.Steals,
+            Interceptions = p.Interceptions,
             Passes = p.Passes,
             Handovers = p.Handovers,
             Turnovers = p.Turnovers,
@@ -163,7 +167,7 @@ public sealed class LibraryIndex
     /// build is thrown away rather than shown: stale numbers that look plausible are worse
     /// than an empty library, because nothing about them says they are out of date.
     /// </summary>
-    public const int CurrentSchema = 3;
+    public const int CurrentSchema = 4;
 
     public int Schema { get; set; } = CurrentSchema;
 

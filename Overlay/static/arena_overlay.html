@@ -499,7 +499,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	function teamName(idx, fallback) {
 		// overlay_config.teams is [blue, orange]
 		const t = config && config.teams && config.teams[idx];
-		const n = t && (t.team_name || t.vrml_team_name);
+		const n = t && (t.team_name || t.eml_team_name);
 		return (n || fallback).toUpperCase();
 	}
 

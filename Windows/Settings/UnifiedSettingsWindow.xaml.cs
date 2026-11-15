@@ -75,6 +75,8 @@ namespace Spark
 			{
 				//Initialize();
 
+				echodemoStatusLabel.Text = EchoReplayManager.StatusText();
+
 
 
 

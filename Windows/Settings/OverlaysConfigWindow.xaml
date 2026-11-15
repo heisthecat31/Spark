@@ -29,8 +29,9 @@
 					<Label Content="Team Name/Logo Source" Margin="20,0,0,0"/>
 					<ComboBox Margin="20,0,20,10" SelectionChanged="TeamsDataSourceChanged" SelectedIndex="{local:SettingBinding overlaysTeamSource}">
 						<ComboBoxItem>Manual Team Entry</ComboBoxItem>
-						<ComboBoxItem>Automatic VRML Teams</ComboBoxItem>
+						<ComboBoxItem>Automatic EML/ECGL Teams</ComboBoxItem>
 					</ComboBox>
+					<CheckBox Margin="20,0,20,10" Content="Show the league team when a whole side is on one EML/ECGL roster" IsChecked="{local:SettingBinding overlaysAutoEmlTeams}" ToolTip="Even when the team names are typed in by hand"/>
 
 					<Grid x:Name="ManualInputSettings" Visibility="{Binding ManualInputVisible}">
 						<Grid.ColumnDefinitions>

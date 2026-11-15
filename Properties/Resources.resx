@@ -853,8 +853,8 @@ CLOSE ECHOVR BEFORE PRESSING OK!</value>
   <data name="Append team names" xml:space="preserve">
     <value>Append team names</value>
   </data>
-  <data name="Appends the team names of the participating teams if enough players from the same VRML team are in the match." xml:space="preserve">
-    <value>Appends the team names of the participating teams if enough players from the same VRML team are in the match.</value>
+  <data name="Appends the team names of the participating teams if enough players from the same EML team are in the match." xml:space="preserve">
+    <value>Appends the team names of the participating teams if enough players from the same EML team are in the match.</value>
   </data>
   <data name="Casters Only" xml:space="preserve">
     <value>Casters Only</value>

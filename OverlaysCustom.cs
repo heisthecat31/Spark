@@ -38,10 +38,6 @@ namespace Spark
 		private static async Task DownloadOverlaysDev()
 		{
 			string route = DiscordOAuth.AccessCode.series_name;
-			if (route.Contains("vrml"))
-			{
-				route = "vrml";
-			}
 
 			string folder = @"S:\git_repo\IgniteVR-Overlays\SparkOverlays\" + route;
 			if (Directory.Exists(folder))
@@ -64,10 +60,6 @@ namespace Spark
 			if (DiscordOAuth.Personal) return;
 
 			string route = DiscordOAuth.AccessCode.series_name;
-			if (route.Contains("vrml"))
-			{
-				route = "vrml";
-			}
 
 			if (Directory.Exists(OverlayServer.StaticOverlayFolder)) Directory.Delete(OverlayServer.StaticOverlayFolder, true);
 			Directory.CreateDirectory(OverlayServer.StaticOverlayFolder);
@@ -132,10 +124,6 @@ namespace Spark
 		private static void CopyObsSceneCollection()
 		{
 			string route = DiscordOAuth.AccessCode.series_name;
-			if (route.Contains("vrml"))
-			{
-				route = "vrml";
-			}
 
 			string sceneCollectionFile = Path.Combine(OverlayServer.StaticOverlayFolder, route, route + ".json");
 			if (route == "personal")
@@ -193,10 +181,6 @@ namespace Spark
 // 			{
 // 				string[] ignoreEnds = { "index.html", ".html" };
 // 				string route = DiscordOAuth.AccessCode.series_name;
-// 				if (route.Contains("vrml"))
-// 				{
-// 					route = "vrml";
-// 				}
 //
 // 				string url = $"/{route}/";
 // 				bool ended = false;

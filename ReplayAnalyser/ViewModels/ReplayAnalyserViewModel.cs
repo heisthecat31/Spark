@@ -131,7 +131,7 @@ public sealed class ReplayAnalyserViewModel : ObservableObject
     /// The folder picked here last time, else wherever Spark saves its recordings — which is
     /// where the replays will be for almost everyone.
     /// </summary>
-    private static string DefaultFolder()
+    public static string DefaultFolder()
     {
         string picked = SparkSettings.instance?.replayAnalyserFolder ?? "";
         if (!string.IsNullOrWhiteSpace(picked) && Directory.Exists(picked)) return picked;
@@ -198,7 +198,7 @@ public sealed class ReplayAnalyserViewModel : ObservableObject
             // Listing a big folder and statting every file is slow enough to hitch the window.
             (entries, bytes) = await Task.Run(() =>
             {
-                var found = new[] { "*.butter", "*.echoreplay", "*.tape" }
+                var found = new[] { "*.echodemo", "*.butter", "*.echoreplay", "*.tape" }
                     .SelectMany(p => Directory.EnumerateFiles(folder, p))
                     .Select(f => new FileInfo(f))
                     .Where(f => f.Length > 2000)          // clip pointers and empty captures

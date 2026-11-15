@@ -28,7 +28,7 @@
         <StackPanel Grid.Row="0">
             <TextBlock Text="Replay library" Style="{StaticResource RaPageTitle}"/>
             <TextBlock Style="{StaticResource RaBody}" Margin="0,3,0,0"
-                       Text="Every .butter, .echoreplay and .tape recording in the folder. Index once and the scores, rosters and career trends stay available without re-reading the files."/>
+                       Text="Every .echodemo, .butter, .echoreplay and .tape recording in the folder. Index once and the scores, rosters and career trends stay available without re-reading the files."/>
         </StackPanel>
 
         <!-- folder + actions -->

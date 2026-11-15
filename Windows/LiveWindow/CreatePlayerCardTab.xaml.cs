@@ -76,7 +76,8 @@ namespace Spark
             new StatOption("Shots on Goal",    "ShotsOnGoal"),
             new StatOption("Avg Points/Game",  "AveragePointsPerGame", "F2"),
             new StatOption("Goals/Game",       "GoalsPerGame",         "F2"),
-            new StatOption("Game XP",          "_game_XP"),
+            new StatOption("Wins",             "ArenaWins"),
+            new StatOption("Win %",            "ArenaWinPercentage",   "F1", "%"),
         };
 
         private static readonly string[] StyleNames = new[]
@@ -286,27 +287,17 @@ namespace Spark
                 PlayerNameText.Text = displayName;
                 InfoUsername.Text   = displayName;
 
-                // Parse arena stats
-                _loadedStats = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+                // Stats come from the replay folder as the Replay Analyser indexed it (public arena matches only),
+                // found by every account that has played on this PC.
+                var profiles = EchoDemoReader.LocalProfileNames();
+                var ids      = new HashSet<ulong>(profiles.Keys);
+                if (EchoDemoReader.PlatformId(root["xplatformid"]?.ToString()) is ulong ownId) ids.Add(ownId);
+                var names    = new HashSet<string>(profiles.Values, StringComparer.OrdinalIgnoreCase) { displayName };
+                string folder = ReplayAnalyser.ViewModels.ReplayAnalyserViewModel.DefaultFolder();
 
-                if (root["stats"]?["arena"] is JObject arena)
-                {
-                    foreach (var prop in arena.Properties())
-                    {
-                        double val = prop.Value["val"]?.Value<double>() ?? 0;
-                        _loadedStats[prop.Name] = val;
-                    }
-                }
-
-                // Parse game stats (prefixed to avoid key collisions)
-                if (root["stats"]?["game"] is JObject game)
-                {
-                    foreach (var prop in game.Properties())
-                    {
-                        double val = prop.Value["val"]?.Value<double>() ?? 0;
-                        _loadedStats[$"_game_{prop.Name}"] = val;
-                    }
-                }
+                var card = await Task.Run(() => ReplayAnalyser.Analysis.PlayerCardStats.Compute(folder, ids, names));
+                _loadedStats = card.Stats;
+                ShowIndexNotice(card);
 
                 // Update sidebar read-outs
                 InfoGamesPlayed.Text = GetFmt("GamesPlayed");
@@ -1069,6 +1060,33 @@ namespace Spark
                     .FirstOrDefault(File.Exists);
             }
             catch { return null; }
+        }
+
+        /// <summary>
+        /// Says how much of the replay folder the stats cover. Anything not indexed yet isn't counted, so a
+        /// partly indexed folder asks for a full index.
+        /// </summary>
+        private void ShowIndexNotice(ReplayAnalyser.Analysis.PlayerCardResult card)
+        {
+            string counted = $"{card.Matches:N0} public arena match{(card.Matches == 1 ? "" : "es")} counted";
+            if (card.PrivateSkipped > 0) counted += $", {card.PrivateSkipped:N0} private left out";
+            if (card.Total == 0)
+            {
+                IndexNoticeText.Text = $"No replays found in {card.Folder}. Record some matches, then index them in Replay Analyser.";
+                IndexNoticeText.Foreground = (Brush)FindResource("ControlDisabledGlythColour");
+            }
+            else if (!card.FullyIndexed)
+            {
+                IndexNoticeText.Text = $"⚠ Full index required: {card.Indexed:N0} of {card.Total:N0} replays indexed. " +
+                                       "Open Replay Analyser › Library and press Index, then Refresh Stats. " +
+                                       $"({counted} so far.)";
+                IndexNoticeText.Foreground = new SolidColorBrush(Color.FromRgb(0xFF, 0xA8, 0x26));
+            }
+            else
+            {
+                IndexNoticeText.Text = $"All {card.Total:N0} replays indexed: {counted}.";
+                IndexNoticeText.Foreground = (Brush)FindResource("ControlDisabledGlythColour");
+            }
         }
 
         private string GetFmt(string key, string format = "N0")

@@ -41,8 +41,8 @@
 			</li>
 			<li>
 				<a href="/midmatch_overlay"><h3>/midmatch_overlay</h3></a>An overlay that covers the default
-				ORANGE TEAM and BLUE TEAM banners with automatically generated team names from VRML team
-				lists. Also shows neutral and defensive joust times. Customize the team names and logos in
+				ORANGE TEAM and BLUE TEAM banners with automatically generated team names from EML (Arena) and ECGL (Combat)
+				team rosters. Also shows neutral and defensive joust times. Customize the team names and logos in
 				Spark's Settings->Overlay window.
 			</li>
 			<li>

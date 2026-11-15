@@ -146,7 +146,7 @@
 
                     <tr>
                         <td colspan="5" style="font-size: .6em;">
-                            Automatic team names/logos are detected based on rosters on the VRML website.
+                            Automatic team names/logos are detected based on rosters on the EML (Arena) and ECGL (Combat) websites.
                         </td>
                     </tr>
                     <tr>
@@ -245,14 +245,16 @@
         "team_names_source": 1,
         "teams": [
             {
-                "vrml_team_name": "",
-                "vrml_team_logo": "",
+                "eml_team_name": "",
+                "eml_team_logo": "",
+                "eml_team_url": "",
                 "team_name": "",
                 "team_logo": ""
             },
             {
-                "vrml_team_name": "",
-                "vrml_team_logo": "",
+                "eml_team_name": "",
+                "eml_team_logo": "",
+                "eml_team_url": "",
                 "team_name": "",
                 "team_logo": ""
             }]
@@ -307,15 +309,15 @@
     }
 
 
-    httpGetAsync('https://api.ignitevr.gg/vrml/get_team_list', autocompleteTeamInputs);
+    httpGetAsync('http://localhost:6724/api/eml/teams', autocompleteTeamInputs);
 
     function autocompleteTeamInputs(data: string) {
         let parsed = JSON.parse(data);
         let teams: string[] = [];
 
         parsed.forEach(t => {
-            teams.push(t['teamName']);
-            teamLogosDict[t['teamName']] = 'https://vrmasterleague.com' + t['teamLogo'];
+            teams.push(t['team_name']);
+            teamLogosDict[t['team_name']] = t['team_logo'];
         });
 
         Array.from(document.getElementsByClassName("team_input")).forEach(e => {

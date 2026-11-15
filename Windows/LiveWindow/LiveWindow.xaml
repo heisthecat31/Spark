@@ -370,7 +370,7 @@
                                 <DockPanel>
                                     <Rectangle DockPanel.Dock="Left" Width="3" Height="12" RadiusX="2" RadiusY="2"
                                                Fill="{DynamicResource TeamBlue}" VerticalAlignment="Center"/>
-                                    <Image x:Name="blueTeamLogo" DockPanel.Dock="Left" Height="16" Width="16" Margin="8,0,0,0"/>
+                                    <Image x:Name="blueTeamLogo" DockPanel.Dock="Left" Height="16" Width="16" Margin="8,0,0,0" MouseLeftButtonUp="LeagueTeamLogoClicked"/>
                                     <TextBlock x:Name="BlueTeamCount" DockPanel.Dock="Right" Text="0" FontSize="11"
                                                FontFamily="Consolas" VerticalAlignment="Center"
                                                Foreground="{DynamicResource TeamBlueEdge}"/>
@@ -408,7 +408,7 @@
                                 <DockPanel>
                                     <Rectangle DockPanel.Dock="Left" Width="3" Height="12" RadiusX="2" RadiusY="2"
                                                Fill="{DynamicResource TeamOrange}" VerticalAlignment="Center"/>
-                                    <Image x:Name="orangeTeamLogo" DockPanel.Dock="Left" Height="16" Width="16" Margin="8,0,0,0"/>
+                                    <Image x:Name="orangeTeamLogo" DockPanel.Dock="Left" Height="16" Width="16" Margin="8,0,0,0" MouseLeftButtonUp="LeagueTeamLogoClicked"/>
                                     <TextBlock x:Name="OrangeTeamCount" DockPanel.Dock="Right" Text="0" FontSize="11"
                                                FontFamily="Consolas" VerticalAlignment="Center"
                                                Foreground="{DynamicResource TeamOrangeEdge}"/>
@@ -1314,7 +1314,7 @@
                                         <ComboBoxItem Content="{x:Static p:Resources.join_as_spectator}" ToolTip="{x:Static p:Resources.Join_directly_as_a_spectator_}"/>
                                     </ComboBox>
                                     <CheckBox x:Name="surroundWithAngleBracketsCheckbox" Content="{x:Static p:Resources.Surround_with__lt__gt_}" Margin="10,0,10,5" IsChecked="{l:SettingBinding atlasLinkUseAngleBrackets}" ToolTip="{x:Static p:Resources.Angle_brackes_allow_you_to_click_on_the_link_when_it_s_pasted_in_Discord_}"/>
-                                    <CheckBox Content="{x:Static p:Resources.Append_team_names}" Margin="10,0,0,0" IsChecked="{l:SettingBinding atlasLinkAppendTeamNames}" ToolTip="{x:Static p:Resources.Appends_the_team_names_of_the_participating_teams_if_enough_players_from_the_same_VRML_team_are_in_the_match_}"/>
+                                    <CheckBox Content="{x:Static p:Resources.Append_team_names}" Margin="10,0,0,0" IsChecked="{l:SettingBinding atlasLinkAppendTeamNames}" ToolTip="{x:Static p:Resources.Appends_the_team_names_of_the_participating_teams_if_enough_players_from_the_same_EML_team_are_in_the_match_}"/>
                                 </StackPanel>
 
                             </GroupBox>
@@ -1748,12 +1748,8 @@
                             Click="RestartAsSpectatorClick" ToolTip="{x:Static p:Resources.Restarts_the_game_in_the_2D_spectator_mode_}"/>
                     <Button Content="{x:Static p:Resources.Find_All_Quests}" Style="{StaticResource ToolButton}"
                             Click="FindAllQuests" ToolTip="{x:Static p:Resources.Shows_a_list_of_all_the_Quest_IPs_on_the_network_}"/>
-                    <Button x:Name="PasteLinkInLiveButton" Content="{x:Static p:Resources.Paste_link_in__live}"
-                            Style="{StaticResource ToolButton}" Click="PasteLinkInLive"/>
                     <Button x:Name="LeagueOverlaysButton" Content="{x:Static p:Resources.League_Overlays}"
                             Style="{StaticResource ToolButton}" Click="LeagueOverlaysClick"/>
-                    <Button x:Name="MatchSetupButton" Content="{x:Static p:Resources.Match_Setup_Page}"
-                            Style="{StaticResource ToolButton}" Click="MatchSetupClick"/>
                 </StackPanel>
 
                 <TextBlock Text="TOOLS" Style="{StaticResource SidebarHeading}" Margin="0,12,0,7"/>
@@ -1815,18 +1811,24 @@
                     </StackPanel>
                 </Button>
 
-                <DockPanel>
-                    <Button DockPanel.Dock="Right" Width="34" Content="VR" Style="{StaticResource ToolButton}"
-                            Margin="5,0,0,5" Padding="0" HorizontalContentAlignment="Center" FontSize="10.5"
-                            Click="ReplayViewerVR_Click"/>
-                    <Button Style="{StaticResource ToolButton}" Click="ReplayViewer_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Style="{StaticResource ToolIcon}" Data="M14,8 A6,6 0 1,1 12.2,3.8 M14,1.5 V5.4 H10.1"/>
-                            <TextBlock Text="Replay viewer" Margin="9,0,0,0" VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Button>
-                </DockPanel>
+                <Button x:Name="ReplayViewerButton" Style="{StaticResource ToolButton}" Click="ReplayViewer_Click"
+                        ToolTip="EchoReplay Viewer: watch .echodemo recordings without the game">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Path Grid.Column="0" Style="{StaticResource ToolIcon}" Data="M14,8 A6,6 0 1,1 12.2,3.8 M14,1.5 V5.4 H10.1"/>
+                        <TextBlock Grid.Column="1" Text="Replay viewer" Margin="9,0,0,0" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <Border x:Name="ReplayViewerUpdateBadge" Grid.Column="2" Visibility="Collapsed" Margin="6,0,0,0" CornerRadius="7"
+                                Padding="6,0,6,1" Background="{DynamicResource StatusGoodTint}"
+                                BorderBrush="{DynamicResource StatusGoodEdge}" BorderThickness="1" VerticalAlignment="Center">
+                            <TextBlock Text="Update" FontSize="9.5" FontWeight="SemiBold" Foreground="{DynamicResource StatusGood}"/>
+                        </Border>
+                    </Grid>
+                </Button>
                 <ProgressBar x:Name="ReplayViewerProgressBar" Height="4" Visibility="Collapsed" Margin="0,0,0,5" IsIndeterminate="True"/>
 
                 <Button x:Name="SpeedometerButton" Content="{x:Static p:Resources.Speedometer}" Style="{StaticResource ToolButton}"

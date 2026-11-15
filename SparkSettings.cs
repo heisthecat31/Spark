@@ -109,6 +109,12 @@ namespace Spark
 		public bool saveButterFiles { get; set; } = false;
 		public bool saveTapeFiles { get; set; } = false;
 		public bool saveEchoreplayFiles { get; set; } = true;
+
+		/// <summary>
+		/// Record .echodemo files with EchoReplay, the main format. Spark injects EchoReplay.dll into
+		/// echovr.exe, or keeps plugins\EchoReplay.dll updated when the game folder already has one.
+		/// </summary>
+		public bool saveEchodemoFiles { get; set; } = true;
 		public bool showConsoleOnStart { get; set; } = false;
 		public bool outputGameStateEvents { get; set; } = true;
 		public bool outputScoreEvents { get; set; } = true;
@@ -413,9 +419,15 @@ namespace Spark
 	#region Overlays
 
 		/// <summary>
-		/// 0 for manual, 1 for vrml api
+		/// 0 for manual, 1 for the league rosters (EML for Arena, ECGL for Combat)
 		/// </summary>
 		public int overlaysTeamSource { get; set; } = 1;
+
+		/// <summary>
+		/// When every player on a side is on the same league roster (EML/ECGL), show that team on the
+		/// overlays even when the team names are typed in by hand.
+		/// </summary>
+		public bool overlaysAutoEmlTeams { get; set; } = true;
 
 		public string overlaysManualTeamNameOrange { get; set; } = "";
 		public string overlaysManualTeamNameBlue { get; set; } = "";

@@ -45,14 +45,16 @@ export let Config = {
 	team_names_source: 1,
 	teams: [
 		{
-			vrml_team_name: '',
-			vrml_team_logo: '',
+			eml_team_name: '',
+			eml_team_logo: '',
+			eml_team_url: '',
 			team_name: '',
 			team_logo: ''
 		},
 		{
-			vrml_team_name: '',
-			vrml_team_logo: '',
+			eml_team_name: '',
+			eml_team_logo: '',
+			eml_team_url: '',
 			team_name: '',
 			team_logo: ''
 		}

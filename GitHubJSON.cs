@@ -16,6 +16,7 @@ namespace Spark
 	[Serializable]
 	public class Asset
 	{
+		public string name;
 		public string browser_download_url;
 		public Uploader uploader;
 	}

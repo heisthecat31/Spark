@@ -455,6 +455,10 @@
 						        IsEnabled="{Binding ElementName=enableFullLoggingCheckbox, Path=IsChecked}">
 							<StackPanel>
 								<TextBlock Text="File formats" Foreground="{DynamicResource TextFaint}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+								<CheckBox Content="Save to .echodemo format (EchoReplay, recommended)" Style="{StaticResource ThemedCheckBox}" FontWeight="SemiBold" Margin="0,0,0,4" IsChecked="{l:SettingBinding saveEchodemoFiles}" />
+								<TextBlock TextWrapping="Wrap" FontSize="11.5" Foreground="{DynamicResource TextFaint}" Margin="22,0,0,4"
+								           Text="EchoReplay records the match from inside the game: players, disc, voice chat and stats, playable in EchoReplay Viewer or back in Echo VR. Spark downloads EchoReplay.dll from GitHub and injects it into echovr.exe when the game starts, so no plugin loader is needed. If your game folder already has plugins\EchoReplay.dll (EchoLoader or nevr), Spark doesn't inject; it keeps that file updated instead. Spark's injected copy saves recordings to the replay folder below, where EchoReplay Viewer also looks (a plugins\ copy keeps its own folder, Documents\EchoReplay by default). Turning this on while the game is running injects it straight away; a recording starts with the next match."/>
+								<TextBlock x:Name="echodemoStatusLabel" TextWrapping="Wrap" FontSize="11.5" Foreground="{DynamicResource TextFaint}" Margin="22,0,0,10"/>
 								<StackPanel Orientation="Horizontal" Margin="0,0,0,4">
 									<CheckBox Content="Save to .echoreplay format" Style="{StaticResource ThemedCheckBox}" Margin="0,0,20,9" IsChecked="{l:SettingBinding saveEchoreplayFiles}" />
 									<CheckBox Content="Save to .butter format" Style="{StaticResource ThemedCheckBox}" Margin="0,0,20,9" IsChecked="{l:SettingBinding saveButterFiles}" />

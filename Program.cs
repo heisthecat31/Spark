@@ -594,6 +594,9 @@ namespace Spark
 				// sets up listeners for replay file saving
 				replayFilesManager = new ReplayFilesManager();
 
+				// .echodemo recording: keeps EchoReplay up to date and gets it into echovr.exe
+				EchoReplayManager.Start();
+
 				// sets up listeners for Echo GP timer
 				echoGPController = new EchoGPController();
 
@@ -1830,7 +1833,7 @@ namespace Spark
 
 						if (team.color != Team.TeamColor.spectator)
 						{
-							// find the vrml team names
+							// find the league team names (EML for Arena, ECGL for Combat)
 							CurrentRound.teams[team.color].FindTeamNamesFromPlayerList(team);
 						}
 
@@ -1883,8 +1886,11 @@ namespace Spark
 						LogRow(LogType.Error, "Error processing action", exp.ToString());
 					}
 					
-					// find the vrml team names
-					CurrentRound.teams[team.color].FindTeamNamesFromPlayerList(team);
+					// find the league team names again, from who is still on that side
+					if (team.color != Team.TeamColor.spectator)
+					{
+						CurrentRound.teams[team.color].FindTeamNamesFromPlayerList(frame.teams.FirstOrDefault(t => t.color == team.color));
+					}
 				}
 			}
 
@@ -1919,6 +1925,12 @@ namespace Spark
 					catch (Exception exp)
 					{
 						LogRow(LogType.Error, "Error processing action", exp.ToString());
+					}
+
+					// both sides' league teams may have changed
+					foreach (Team side in frame.teams.Where(t => (t.color is Team.TeamColor.blue or Team.TeamColor.orange) && (t.color == team.color || t.color == lastTeam.color)))
+					{
+						CurrentRound.teams[side.color].FindTeamNamesFromPlayerList(side);
 					}
 				}
 			}
@@ -3896,7 +3908,7 @@ namespace Spark
 
 
 		/// <summary>
-		/// This method is based on the python code that is used in the VRML Discord bot for calculating server score.
+		/// This method is based on the python code that an old league Discord bot used for calculating server score.
 		/// </summary>
 		/// <returns>
 		/// The server score
@@ -4039,10 +4051,11 @@ namespace Spark
 			{
 				if (CurrentRound?.teams[Team.TeamColor.blue] != null && 
 				    CurrentRound?.teams[Team.TeamColor.orange] != null && 
-				    !string.IsNullOrEmpty(CurrentRound.teams[Team.TeamColor.blue].vrmlTeamName) && 
-				    !string.IsNullOrEmpty(CurrentRound.teams[Team.TeamColor.orange].vrmlTeamName))
+				    !string.IsNullOrEmpty(CurrentRound.teams[Team.TeamColor.blue].leagueTeamName) && 
+				    !string.IsNullOrEmpty(CurrentRound.teams[Team.TeamColor.orange].leagueTeamName))
 				{
-					link += $" {CurrentRound.teams[Team.TeamColor.orange].vrmlTeamName} vs {CurrentRound.teams[Team.TeamColor.blue].vrmlTeamName}";
+					// both sides have to be league teams (EML/ECGL)
+					link += $" {CurrentRound.teams[Team.TeamColor.orange].leagueTeamName} vs {CurrentRound.teams[Team.TeamColor.blue].leagueTeamName}";
 				}
 			}
 

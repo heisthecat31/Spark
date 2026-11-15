@@ -390,20 +390,9 @@ namespace Spark
                 string overlayOrangeTeamName = "ORANGE TEAM";
                 string overlayBlueTeamName = "BLUE TEAM";
 
-                switch (SparkSettings.instance.overlaysTeamSource)
-                {
-                    case 0:
-                        overlayOrangeTeamName = SparkSettings.instance.overlaysManualTeamNameOrange;
-                        overlayBlueTeamName = SparkSettings.instance.overlaysManualTeamNameBlue;
-                        break;
-                    case 1:
-                        if (Program.CurrentRound != null)
-                        {
-                            overlayOrangeTeamName = Program.CurrentRound.teams[Team.TeamColor.orange].vrmlTeamName;
-                            overlayBlueTeamName = Program.CurrentRound.teams[Team.TeamColor.blue].vrmlTeamName;
-                        }
-                        break;
-                }
+                // typed in, or the league team (EML/ECGL) found from the rosters
+                overlayOrangeTeamName = OverlayConfig.GetOverlayTeam(Program.CurrentRound, Team.TeamColor.orange).name;
+                overlayBlueTeamName = OverlayConfig.GetOverlayTeam(Program.CurrentRound, Team.TeamColor.blue).name;
 
                 if (string.IsNullOrWhiteSpace(overlayOrangeTeamName)) overlayOrangeTeamName = "ORANGE TEAM";
                 if (string.IsNullOrWhiteSpace(overlayBlueTeamName)) overlayBlueTeamName = "BLUE TEAM";
@@ -449,6 +438,12 @@ namespace Spark
                 await context.Response.WriteAsync(file);
             }
 
+            private static Dictionary<string, object> WithPlayers(Dictionary<string, object> team, object players)
+            {
+                team["players"] = players;
+                return team;
+            }
+
             private static Dictionary<string, object> GetStatsResponse()
             {
                 lock (Program.gameStateLock)
@@ -456,50 +451,15 @@ namespace Spark
                     List<AccumulatedFrame> selectedMatches = GetPreviousRounds();
                     List<List<Dictionary<string, object>>> matchStats = GetMatchStats();
 
-                    string overlayOrangeTeamName = "";
-                    string overlayBlueTeamName = "";
-                    string overlayOrangeTeamLogo = "";
-                    string overlayBlueTeamLogo = "";
-
-                    switch (SparkSettings.instance.overlaysTeamSource)
-                    {
-                        case 0:
-                            overlayOrangeTeamName = SparkSettings.instance.overlaysManualTeamNameOrange;
-                            overlayBlueTeamName = SparkSettings.instance.overlaysManualTeamNameBlue;
-                            overlayOrangeTeamLogo = SparkSettings.instance.overlaysManualTeamLogoOrange;
-                            overlayBlueTeamLogo = SparkSettings.instance.overlaysManualTeamLogoBlue;
-                            break;
-                        case 1:
-                            var orangeTeam = selectedMatches?.LastOrDefault()?.teams[Team.TeamColor.orange];
-                            var blueTeam = selectedMatches?.LastOrDefault()?.teams[Team.TeamColor.blue];
-                            overlayOrangeTeamName = orangeTeam?.vrmlTeamName ?? "";
-                            overlayBlueTeamName = blueTeam?.vrmlTeamName ?? "";
-                            overlayOrangeTeamLogo = orangeTeam?.vrmlTeamLogo ?? "";
-                            overlayBlueTeamLogo = blueTeam?.vrmlTeamLogo ?? "";
-                            break;
-                    }
+                    AccumulatedFrame lastRound = selectedMatches?.LastOrDefault();
 
                     return new Dictionary<string, object>
                     {
                         {
                             "teams", new[]
                             {
-                                new Dictionary<string, object>
-                                {
-                                    { "vrml_team_name", selectedMatches?.LastOrDefault()?.teams[Team.TeamColor.blue].vrmlTeamName ?? "" },
-                                    { "vrml_team_logo", selectedMatches?.LastOrDefault()?.teams[Team.TeamColor.blue].vrmlTeamLogo ?? "" },
-                                    { "team_name", overlayBlueTeamName },
-                                    { "team_logo", overlayBlueTeamLogo },
-                                    { "players", matchStats?[0] }
-                                },
-                                new Dictionary<string, object>
-                                {
-                                    { "vrml_team_name", selectedMatches?.LastOrDefault()?.teams[Team.TeamColor.orange].vrmlTeamName ?? "" },
-                                    { "vrml_team_logo", selectedMatches?.LastOrDefault()?.teams[Team.TeamColor.orange].vrmlTeamLogo ?? "" },
-                                    { "team_name", overlayOrangeTeamName },
-                                    { "team_logo", overlayOrangeTeamLogo },
-                                    { "players", matchStats?[1] }
-                                }
+                                WithPlayers(OverlayConfig.TeamDict(lastRound, Team.TeamColor.blue), matchStats?[0]),
+                                WithPlayers(OverlayConfig.TeamDict(lastRound, Team.TeamColor.orange), matchStats?[1]),
                             }
                         },
                         {

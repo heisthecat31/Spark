@@ -240,12 +240,12 @@ namespace Spark.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Appends the team names of the participating teams if enough players from the same VRML team are in the match..
+        ///   Looks up a localized string similar to Appends the team names of the participating teams if enough players from the same EML team are in the match..
         /// </summary>
-        public static string Appends_the_team_names_of_the_participating_teams_if_enough_players_from_the_same_VRML_team_are_in_the_match_ {
+        public static string Appends_the_team_names_of_the_participating_teams_if_enough_players_from_the_same_EML_team_are_in_the_match_ {
             get {
                 return ResourceManager.GetString("Appends the team names of the participating teams if enough players from the same" +
-                        " VRML team are in the match.", resourceCulture);
+                        " EML team are in the match.", resourceCulture);
             }
         }
         

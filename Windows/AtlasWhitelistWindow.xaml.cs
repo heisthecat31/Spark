@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -58,29 +59,30 @@ namespace Spark
 			LiveWindow.AtlasWhitelist.AtlasTeam team = new(teamName);
 			Program.atlasWhitelist.teams.Add(team);
 
-			FetchUtils.GetRequestCallback(
-				$"{Program.APIURL}/vrml/get_players_on_team/" + teamName,
-				new Dictionary<string, string>(),
-				(response) =>
+			// fill in the players from the team's EML roster
+			Task.Run(async () =>
+			{
+				try
 				{
-					try
+					EmlDirectory eml = await Leagues.GetEml();
+					List<string> players = eml.TeamPlayers(teamName);
+					if (players == null) return;
+
+					Dispatcher.Invoke(() =>
 					{
-						JObject data = JObject.Parse(response);
-						List<Dictionary<string, string>> players = data["players"]?.ToObject<List<Dictionary<string, string>>>();
-						if (players == null) return;
-						
-						foreach (Dictionary<string, string> player in players)
+						foreach (string player in players)
 						{
-							team.players.Add(player["player_name"]);
+							team.players.Add(player);
 						}
 
-						Dispatcher.Invoke(RefreshWhitelistUI);
-					}
-					catch (Exception ex)
-					{
-						Logger.LogRow(Logger.LogType.Error, $"Error getting player list from team\n{ex}");
-					}
-				});
+						RefreshWhitelistUI();
+					});
+				}
+				catch (Exception ex)
+				{
+					Logger.LogRow(Logger.LogType.Error, $"Error getting player list from team\n{ex}");
+				}
+			});
 
 			RefreshWhitelistUI();
 		}
